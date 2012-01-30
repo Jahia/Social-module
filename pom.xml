@@ -54,9 +54,9 @@
     <description>This is the parent project for the social module and the libraries it provides</description>
 
     <scm>
-        <connection>scm:git:git@github.com:Jahia/JahiApp-MyConnections.git</connection>
-        <url>scm:git:git@github.com:Jahia/JahiApp-MyConnections.git</url>
-        <developerConnection>scm:git:git@github.com:Jahia/JahiApp-MyConnections.git</developerConnection>
+        <connection>scm:git:git@github.com:Jahia/Social-module.git</connection>
+        <url>scm:git:git@github.com:Jahia/Social-module.git</url>
+        <developerConnection>scm:git:git@github.com:Jahia/Social-module.git</developerConnection>
     </scm>
 
     <repositories>
