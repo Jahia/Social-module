@@ -77,18 +77,7 @@
     <modules>
         <module>service</module>
         <module>war</module>
+        <module>test</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>modules-test</id>
-            <activation>
-                <jdk>[1.6,)</jdk>
-            </activation>
-            <modules>
-                <module>test</module>
-            </modules>
-        </profile>
-    </profiles>
 
 </project>
