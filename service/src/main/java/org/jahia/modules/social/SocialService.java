@@ -291,8 +291,10 @@ public class SocialService {
                 if (group != null) {
                     Set<Principal> recursiveGroupMembers = group.getRecursiveUserMembers();
                     for (Principal groupMember : recursiveGroupMembers) {
-                        JCRUser jcrUser = getJCRUserFromUserKey(groupMember.getName());
-                        userPaths.add(jcrUser.getNode(jcrSessionWrapper).getPath());
+                        JCRUser jcrUser = getJCRUserFromUserKey((groupMember instanceof JahiaUser) ? ((JahiaUser) groupMember).getUserKey() : groupMember.getName());
+                        if (jcrUser != null) {
+                            userPaths.add(jcrUser.getNode(jcrSessionWrapper).getPath());
+                        }
                     }
                 }
             }
