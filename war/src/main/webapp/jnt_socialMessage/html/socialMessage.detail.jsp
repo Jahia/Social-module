@@ -4,6 +4,7 @@
 <%@ taglib prefix="jcr" uri="http://www.jahia.org/tags/jcr" %>
 <%@ taglib prefix="utility" uri="http://www.jahia.org/tags/utilityLib" %>
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
+<%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
 <c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
 <div class="userMessagesDetail" id="social-message-detail-${currentNode.identifier}"><!--start boxsocial -->
@@ -28,7 +29,7 @@
                     </div>
                 </div>
                 <h5 class="messageSenderName">
-                    <a href="${url.base}${fromUser.path}.html"><c:out value="${jcr:userFullName(fromUser)}"/></a>
+                    <a href="${url.base}${fromUser.path}.html"><c:out value="${user:userFullName(fromUser)}"/></a>
                 </h5><jcr:nodeProperty node="${currentNode}" name="jcr:lastModified" var="lastModified"/><span class="timestamp"><fmt:formatDate
 value="${lastModified.time}" pattern="yyyy/MM/dd HH:mm"/></span>
                 <h5>${fn:escapeXml(currentNode.propertiesAsString['j:subject'])}</h5>

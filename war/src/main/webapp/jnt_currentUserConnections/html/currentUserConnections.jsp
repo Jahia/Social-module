@@ -6,6 +6,7 @@
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="social" uri="http://www.jahia.org/tags/socialLib" %>
 <%@ taglib prefix="uiComponents" uri="http://www.jahia.org/tags/uiComponentsLib" %>
+<%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 <jsp:useBean id="now" class="java.util.Date"/>
 <template:addResources type="css" resources="jquery.autocomplete.css" />
 <template:addResources type="css" resources="simplesearchform.css" />
@@ -211,7 +212,7 @@
                 <a class="social-list-sendmessage showSendMessage" title="<fmt:message key='sendMessage'/>" rel="${connectedToUser.name}"
                    href="#divSendMessage"><span><fmt:message key="sendMessage"/></span></a>
                 <h4>
-                    <a href="<c:url value='${url.base}${connectedToUser.path}.html'/>"><c:out value="${jcr:userFullName(connectedToUser)}"/></a>
+                    <a href="<c:url value='${url.base}${connectedToUser.path}.html'/>"><c:out value="${user:userFullName(connectedToUser)}"/></a>
                 </h4>
 
                 <div class='clear'></div>

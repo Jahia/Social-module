@@ -8,6 +8,7 @@
 <%@ taglib prefix="utility" uri="http://www.jahia.org/tags/utilityLib" %>
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="social" uri="http://www.jahia.org/tags/socialLib" %>
+<%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
 <c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
 
@@ -50,7 +51,7 @@
     <c:if test="${not empty fields['j:from']}">
         <c:set var="fromNode" value="${currentNode.properties['j:from'].node}"/>
     </c:if>
-    <h5 class='author'>${fn:escapeXml(not empty fromNode ? jcr:userFullName(fromNode) : fields["jcr:createdBy"])}</h5>
+    <h5 class='author'>${fn:escapeXml(not empty fromNode ? user:userFullName(fromNode) : fields["jcr:createdBy"])}</h5>
     <jcr:node var="targetNode" path="${currentNode.properties['j:targetNode'].string}"/>
     <p class="message">${fn:escapeXml(message)}&nbsp;
     <c:if test="${not empty targetNode and jcr:isDisplayable(targetNode, renderContext)}">

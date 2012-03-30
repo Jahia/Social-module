@@ -4,6 +4,7 @@
 <%@ taglib prefix="jcr" uri="http://www.jahia.org/tags/jcr" %>
 <%@ taglib prefix="utility" uri="http://www.jahia.org/tags/utilityLib" %>
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
+<%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
 <c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
 <ul class="messageActionList">
@@ -27,7 +28,7 @@
 	</div>
 </div>
 <h5 class="messageSenderName">
-    <a href="<c:url value='${url.base}${fromUser.path}.html'/>"><c:out value="${jcr:userFullName(fromUser)}"/></a>
+    <a href="<c:url value='${url.base}${fromUser.path}.html'/>"><c:out value="${user:userFullName(fromUser)}"/></a>
 </h5><jcr:nodeProperty node="${currentNode}" name="jcr:lastModified" var="lastModified"/><span class="timestamp"><fmt:formatDate
 value="${lastModified.time}" pattern="yyyy/MM/dd HH:mm"/></span>
 <h5><a class="messageDetailLink" href="#socialMessageDetail" info="<c:url value='${url.base}${currentNode.path}.detail.html.ajax'/>">${fn:escapeXml(currentNode.propertiesAsString['j:subject'])}</a></h5>
