@@ -10,10 +10,20 @@
  - j:connectedTo (weakreference) < jnt:user
  - j:type (string)
 
-[jnt:socialActivity] > jnt:content, jmix:droppableContent, jmix:studioOnly
+[jnt:activitiesList] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
+ + * (jnt:activitiesList)
+ + * (jnt:socialActivity)
+
+[jnt:socialActivity] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
  - j:appID (string) nofulltext
  - j:type (string) nofulltext
  - j:targetNode (string) nofulltext
+
+[jnt:simpleSocialActivity] > jnt:socialActivity
+ - j:message (string) nofulltext
+
+[jnt:resourceBundleSocialActivity] > jnt:socialActivity
+ - j:messageKey (string) nofulltext
 
 [jnt:socialMessage] > jnt:content, jmix:droppableContent, jmix:autoPublish, jmix:studioOnly
  - j:from (weakreference) < jnt:user

@@ -60,6 +60,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -105,54 +106,44 @@ public class SocialService {
     }
 
     public void addActivity(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session) throws RepositoryException {
-        if (user == null || "".equals(user.trim())) {
-            return;
-        }
-        final JCRUser fromJCRUser = getJCRUserFromUserKey(user);
-        if (fromJCRUser == null) {
-            logger.warn("No user found, not adding activity !");
-            return;
-        }
-        JCRNodeWrapper userNode = fromJCRUser.getNode(session);
-
-        JCRNodeWrapper activitiesNode = null;
         try {
-            activitiesNode = userNode.getNode("activities");
-            session.checkout(activitiesNode);
-        } catch (PathNotFoundException pnfe) {
-            session.checkout(userNode);
-            activitiesNode = userNode.addNode("activities", "jnt:contentList");
-            activitiesNode.addMixin(JMIX_AUTOPUBLISH);
-            if (autoSplitSettings != null) {
-                activitiesNode.addMixin(Constants.JAHIAMIX_AUTOSPLITFOLDERS);
-                activitiesNode.setProperty(Constants.SPLIT_CONFIG, autoSplitSettings);
-                activitiesNode.setProperty(Constants.SPLIT_NODETYPE, "jnt:contentList");
+            if (messageKey != null) {
+                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:resourceBundleSocialActivity", activityType, session);
+                activityNode.setProperty("j:messageKey", messageKey);
+            } else if (message != null) {
+                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:simpleSocialActivity", activityType, session);
+                activityNode.setProperty("j:message", message);
             }
-            
-        }
-
-        String nodeName = jcrContentUtils.generateNodeName(activitiesNode, JNT_SOCIAL_ACTIVITY);
-        JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, JNT_SOCIAL_ACTIVITY);
-//        activityNode.setProperty("j:from", userNode);
-        if (message != null) {
-            activityNode.setProperty("j:message", message);
-        }
-        if (messageKey != null) {
-            activityNode.setProperty("j:messageKey", messageKey);
-        }
-        if (targetNode != null) {
-            activityNode.setProperty("j:targetNode", targetNode.getPath());
-        }
-        if (nodeTypeList != null && !nodeTypeList.isEmpty()) {
-            String[] targetNodeTypes = nodeTypeList.toArray(new String[nodeTypeList.size()]);
-            activityNode.setProperty("j:targetNodeTypes", targetNodeTypes);
-        }
-        if (activityType != null) {
-            activityNode.setProperty("j:type", activityType);
+        } catch (ConstraintViolationException e) {
+            logger.debug("Cannot create activity",e);
         }
         session.save();
     }
 
+    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session) throws RepositoryException {
+        if (user == null || "".equals(user.trim())) {
+            throw new ConstraintViolationException();
+        }
+        final JCRUser fromJCRUser = getJCRUserFromUserKey(user);
+        if (fromJCRUser == null) {
+            logger.warn("No user found, not adding activity !");
+            throw new ConstraintViolationException();
+        }
+        JCRNodeWrapper userNode = fromJCRUser.getNode(session);
+
+        JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
+
+        String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
+        JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
+//        activityNode.setProperty("j:from", userNode);
+        if (targetNode != null) {
+            activityNode.setProperty("j:targetNode", targetNode.getPath());
+        }
+        if (activityType != null) {
+            activityNode.setProperty("j:type", activityType);
+        }
+        return activityNode;
+    }
 
     public void addActivityFromRules(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session, KnowledgeHelper drools) throws RepositoryException {
         if (user == null || "".equals(user.trim())) {
@@ -165,44 +156,60 @@ public class SocialService {
         }
         JCRNodeWrapper userNode = fromJCRUser.getNode(session);
 
-        JCRNodeWrapper activitiesNode = null;
-        try {
-            activitiesNode = userNode.getNode("activities");
-            session.checkout(activitiesNode);
-        } catch (PathNotFoundException pnfe) {
-            session.checkout(userNode);
-            AddedNodeFact addedNodeFact = new AddedNodeFact(new AddedNodeFact(userNode), "activities", "jnt:contentList", drools);
-            activitiesNode = addedNodeFact.getNode();
-            drools.insert(activitiesNode);
-            if (autoSplitSettings != null) {
-                activitiesNode.addMixin(Constants.JAHIAMIX_AUTOSPLITFOLDERS);
-                drools.insert(new ChangedPropertyFact(addedNodeFact,Constants.SPLIT_CONFIG,autoSplitSettings,drools));
-                drools.insert(new ChangedPropertyFact(addedNodeFact,Constants.SPLIT_NODETYPE, "jnt:contentList",drools));
-            }
+        JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
 
-        }
-
-        String nodeName = jcrContentUtils.generateNodeName(activitiesNode, JNT_SOCIAL_ACTIVITY);
-        AddedNodeFact activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, JNT_SOCIAL_ACTIVITY, drools);
-        drools.insert(activityNode);
-//        drools.insert(new ChangedPropertyFact(activityNode,"j:from", userNode.getIdentifier(),drools));
-        if (message != null) {
-            drools.insert(new ChangedPropertyFact(activityNode,"j:message", message,drools));
-        }
+        AddedNodeFact activityNode;
+        //        drools.insert(new ChangedPropertyFact(activityNode,"j:from", userNode.getIdentifier(),drools));
         if (messageKey != null) {
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode,  "jnt:resourceBundleSocialActivity");
+            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName,  "jnt:resourceBundleSocialActivity", drools);
+            drools.insert(activityNode);
             drools.insert(new ChangedPropertyFact(activityNode,"j:messageKey", messageKey,drools));
+        } else if (message != null) {
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:simpleSocialActivity");
+            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:simpleSocialActivity", drools);
+            drools.insert(activityNode);
+            drools.insert(new ChangedPropertyFact(activityNode,"j:message", message,drools));
+        } else {
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:socialActivity");
+            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:socialActivity", drools);
         }
+
         if (targetNode != null) {
             drools.insert(new ChangedPropertyFact(activityNode,"j:targetNode", targetNode.getPath(),drools));
         }
-        if (nodeTypeList != null && !nodeTypeList.isEmpty()) {
-            String[] targetNodeTypes = nodeTypeList.toArray(new String[nodeTypeList.size()]);
-            drools.insert(new ChangedPropertyFact(activityNode,"j:targetNodeTypes", targetNodeTypes,drools));
-        }
+//        if (nodeTypeList != null && !nodeTypeList.isEmpty()) {
+//            String[] targetNodeTypes = nodeTypeList.toArray(new String[nodeTypeList.size()]);
+//            drools.insert(new ChangedPropertyFact(activityNode,"j:targetNodeTypes", targetNodeTypes,drools));
+//        }
         if (activityType != null) {
             drools.insert(new ChangedPropertyFact(activityNode,"j:type", activityType,drools));
         }
     }
+
+    private JCRNodeWrapper getActivitiesNode(JCRSessionWrapper session, JCRNodeWrapper userNode) throws RepositoryException {
+        JCRNodeWrapper activitiesNode;
+        try {
+            activitiesNode = userNode.getNode("activities");
+            if (!activitiesNode.isNodeType("jnt:activitiesList")) {
+                activitiesNode.remove();
+                session.save();
+                throw new PathNotFoundException();
+            }
+            session.checkout(activitiesNode);
+        } catch (PathNotFoundException pnfe) {
+            session.checkout(userNode);
+            activitiesNode = userNode.addNode("activities", "jnt:activitiesList");
+            activitiesNode.addMixin(JMIX_AUTOPUBLISH);
+            if (autoSplitSettings != null) {
+                activitiesNode.addMixin(Constants.JAHIAMIX_AUTOSPLITFOLDERS);
+                activitiesNode.setProperty(Constants.SPLIT_CONFIG, autoSplitSettings);
+                activitiesNode.setProperty(Constants.SPLIT_NODETYPE, "jnt:activitiesList");
+            }
+        }
+        return activitiesNode;
+    }
+
 
     public boolean sendMessage(final String fromUserKey, final String toUserKey, final String subject, final String body) throws RepositoryException {
         return execute(new JCRCallback<Boolean>() {
