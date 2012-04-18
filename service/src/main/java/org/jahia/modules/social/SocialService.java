@@ -133,7 +133,7 @@ public class SocialService {
 
         String nodeName = jcrContentUtils.generateNodeName(activitiesNode, JNT_SOCIAL_ACTIVITY);
         JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, JNT_SOCIAL_ACTIVITY);
-        activityNode.setProperty("j:from", userNode);
+//        activityNode.setProperty("j:from", userNode);
         if (message != null) {
             activityNode.setProperty("j:message", message);
         }
@@ -185,7 +185,7 @@ public class SocialService {
         String nodeName = jcrContentUtils.generateNodeName(activitiesNode, JNT_SOCIAL_ACTIVITY);
         AddedNodeFact activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, JNT_SOCIAL_ACTIVITY, drools);
         drools.insert(activityNode);
-        drools.insert(new ChangedPropertyFact(activityNode,"j:from", userNode.getIdentifier(),drools));
+//        drools.insert(new ChangedPropertyFact(activityNode,"j:from", userNode.getIdentifier(),drools));
         if (message != null) {
             drools.insert(new ChangedPropertyFact(activityNode,"j:message", message,drools));
         }
@@ -245,7 +245,7 @@ public class SocialService {
                 fromUser.getName() + "_to_" + toUser.getName());
         JCRNodeWrapper destinationMessageNode = destinationInboxNode.addNode(destinationInboxNodeName,
                 JNT_SOCIAL_MESSAGE);
-        destinationMessageNode.setProperty("j:from", fromUser);
+//        destinationMessageNode.setProperty("j:from", fromUser);
         destinationMessageNode.setProperty("j:to", toUser);
         destinationMessageNode.setProperty("j:subject", subject);
         destinationMessageNode.setProperty("j:body", body);
@@ -256,7 +256,7 @@ public class SocialService {
         String sentMessagesBoxNodeName = JCRContentUtils.findAvailableNodeName(sentMessagesBoxNode, fromUser.getName()
                 + "_to_" + toUser.getName());
         JCRNodeWrapper sentMessageNode = sentMessagesBoxNode.addNode(sentMessagesBoxNodeName, JNT_SOCIAL_MESSAGE);
-        sentMessageNode.setProperty("j:from", fromUser);
+//        sentMessageNode.setProperty("j:from", fromUser);
         sentMessageNode.setProperty("j:to", toUser);
         sentMessageNode.setProperty("j:subject", subject);
         sentMessageNode.setProperty("j:body", body);

@@ -6,7 +6,7 @@
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
-<c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
+<c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
 <div class="userMessagesDetail" id="social-message-detail-${currentNode.identifier}"><!--start boxsocial -->
 <h4><fmt:message key="message.details"/></h4>
                 <ul class="messageActionList">

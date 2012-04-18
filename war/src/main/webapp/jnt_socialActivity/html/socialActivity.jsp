@@ -10,7 +10,7 @@
 <%@ taglib prefix="social" uri="http://www.jahia.org/tags/socialLib" %>
 <%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
-<c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
+<c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
 
 <c:set var="fields" value="${currentNode.propertiesAsString}"/>
 <c:set var="message" value="${fields['j:message']}" />
@@ -48,9 +48,7 @@
 				<img alt="" src="<c:url value='${url.currentModule}/images/friendbig.png'/>" alt="friend" border="0"/></a></c:if>
         </div>
     </div>
-    <c:if test="${not empty fields['j:from']}">
-        <c:set var="fromNode" value="${currentNode.properties['j:from'].node}"/>
-    </c:if>
+    <c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
     <h5 class='author'>${fn:escapeXml(not empty fromNode ? user:userFullName(fromNode) : fields["jcr:createdBy"])}</h5>
     <jcr:node var="targetNode" path="${currentNode.properties['j:targetNode'].string}"/>
     <p class="message">${fn:escapeXml(message)}&nbsp;

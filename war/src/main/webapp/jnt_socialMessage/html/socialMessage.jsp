@@ -6,7 +6,7 @@
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
-<c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
+<c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
 <ul class="messageActionList">
    <li><a class="messageActionDelete" title="<fmt:message key='deleteMessage'/>" href="#delete" info="${currentNode.identifier}"><span><fmt:message
         key="deleteMessage"/></span></a></li>

@@ -7,14 +7,6 @@
         <property name="socialService" ref="socialService"/>
     </bean>
 
-    <bean class="org.jahia.modules.social.RequestSocialConnectionAction" parent="socialAction"/>
-
-    <bean class="org.jahia.modules.social.RemoveSocialConnectionAction" parent="socialAction"/>
-
-    <bean class="org.jahia.modules.social.SendMessageAction" parent="socialAction"/>
-
-    <bean class="org.jahia.modules.social.RemoveSocialMessageAction"/>
-    
     <bean class="org.jahia.modules.social.AddActivityAction" parent="socialAction"/>
     
     <bean id="socialService" class="org.jahia.modules.social.SocialService">
