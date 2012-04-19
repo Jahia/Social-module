@@ -55,6 +55,8 @@ import org.jahia.services.usermanager.jcr.JCRUserManagerProvider;
 import org.jahia.services.workflow.WorkflowService;
 import org.jahia.services.workflow.WorkflowVariable;
 import org.slf4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -72,7 +74,7 @@ import java.util.*;
  *
  * @author Serge Huber
  */
-public class SocialService {
+public class SocialService implements BeanPostProcessor {
 
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(SocialService.class);
     public static final String JNT_SOCIAL_ACTIVITY = "jnt:socialActivity";
@@ -101,6 +103,8 @@ public class SocialService {
     private WorkflowService workflowService;
 	private JCRContentUtils jcrContentUtils;
 
+    private Map<String,ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
+
     public void addActivity(final String user, final String message, JCRSessionWrapper session) throws RepositoryException {
         addActivity(null, user, message, null, null, null, session);
     }
@@ -120,7 +124,7 @@ public class SocialService {
         session.save();
     }
 
-    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session) throws RepositoryException {
+    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session, String...args) throws RepositoryException {
         if (user == null || "".equals(user.trim())) {
             throw new ConstraintViolationException();
         }
@@ -135,12 +139,17 @@ public class SocialService {
 
         String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
         JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
+        if(activityRecorderMap.containsKey(nodeType)) {
+          activityRecorderMap.get(nodeType).recordActivity(activityType,user,activityNode,targetNode,session,args);
+        }
+        else {
 //        activityNode.setProperty("j:from", userNode);
         if (targetNode != null) {
             activityNode.setProperty("j:targetNode", targetNode.getPath());
         }
         if (activityType != null) {
             activityNode.setProperty("j:type", activityType);
+        }
         }
         return activityNode;
     }
@@ -585,6 +594,56 @@ public class SocialService {
 		    jcrContentUtils.getNameGenerationHelper() instanceof DefaultNameGenerationHelperImpl) {
 		    ((DefaultNameGenerationHelperImpl)jcrContentUtils.getNameGenerationHelper()).getRandomizedNames().add(JNT_SOCIAL_ACTIVITY);
 		}
+    }
+
+    /**
+     * Apply this BeanPostProcessor to the given new bean instance <i>after</i> any bean
+     * initialization callbacks (like InitializingBean's <code>afterPropertiesSet</code>
+     * or a custom init-method). The bean will already be populated with property values.
+     * The returned bean instance may be a wrapper around the original.
+     * <p>In case of a FactoryBean, this callback will be invoked for both the FactoryBean
+     * instance and the objects created by the FactoryBean (as of Spring 2.0). The
+     * post-processor can decide whether to apply to either the FactoryBean or created
+     * objects or both through corresponding <code>bean instanceof FactoryBean</code> checks.
+     * <p>This callback will also be invoked after a short-circuiting triggered by a
+     * {@link org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation} method,
+     * in contrast to all other BeanPostProcessor callbacks.
+     *
+     * @param bean     the new bean instance
+     * @param beanName the name of the bean
+     * @return the bean instance to use, either the original or a wrapped one; if
+     *         <code>null</code>, no subsequent BeanPostProcessors will be invoked
+     * @throws org.springframework.beans.BeansException
+     *          in case of errors
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+     * @see org.springframework.beans.factory.FactoryBean
+     */
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if(bean instanceof ActivityRecorder) {
+            ActivityRecorder activityRecorder = (ActivityRecorder) bean;
+            for (String activityType : activityRecorder.getActivityTypes()) {
+                activityRecorderMap.put(activityType,activityRecorder);
+            }
+        }
+        return bean;
+    }
+
+    /**
+     * Apply this BeanPostProcessor to the given new bean instance <i>before</i> any bean
+     * initialization callbacks (like InitializingBean's <code>afterPropertiesSet</code>
+     * or a custom init-method). The bean will already be populated with property values.
+     * The returned bean instance may be a wrapper around the original.
+     *
+     * @param bean     the new bean instance
+     * @param beanName the name of the bean
+     * @return the bean instance to use, either the original or a wrapped one; if
+     *         <code>null</code>, no subsequent BeanPostProcessors will be invoked
+     * @throws org.springframework.beans.BeansException
+     *          in case of errors
+     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
+     */
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
     }
 
     private boolean execute(JCRCallback<Boolean> jcrCallback) throws RepositoryException {
