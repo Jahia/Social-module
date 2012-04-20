@@ -104,20 +104,7 @@ public class SocialService implements BeanPostProcessor {
     private Map<String, ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
 
     public void addActivity(final String user, final String message, JCRSessionWrapper session) throws RepositoryException {
-        addActivity(null, user, message, null, null, null, session);
-    }
-
-    public void addActivity(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session) throws RepositoryException {
-        try {
-            if (messageKey != null) {
-                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:resourceBundleSocialActivity", session, messageKey);
-            } else if (message != null) {
-                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:simpleSocialActivity", session, message);
-            }
-        } catch (ConstraintViolationException e) {
-            logger.debug("Cannot create activity", e);
-        }
-        session.save();
+        addActivity(user, null, "jnt:simpleSocialActivity", session, message);
     }
 
     public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, JCRSessionWrapper session, Object... args) throws RepositoryException {
