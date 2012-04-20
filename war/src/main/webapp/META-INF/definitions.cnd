@@ -15,8 +15,6 @@
  + * (jnt:socialActivity)
 
 [jnt:socialActivity] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
- - j:appID (string) nofulltext
- - j:type (string) nofulltext
  - j:targetNode (string) nofulltext
 
 [jnt:simpleSocialActivity] > jnt:socialActivity
