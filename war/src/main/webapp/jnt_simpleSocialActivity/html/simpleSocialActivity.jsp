@@ -12,12 +12,11 @@
 
 <c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
 
-<c:set var="fields" value="${currentNode.propertiesAsString}"/>
-<c:set var="message" value="${fields['j:message']}" />
-<c:if test="${not empty fields['j:messageKey']}">
-    <c:if test="${fn:contains(fields['j:messageKey'],':')}">
-        <c:set value="${fn:substringAfter(fields['j:messageKey'],':')}" var="key"/>
-        <c:set value="${fn:substringBefore(fields['j:messageKey'],':')}" var="bundleName"/>
+<c:set var="message" value="${currentNode.properties['j:message'].string}" />
+<c:if test="${currentNode.properties['j:activityType'].string eq 'resourceBundle'}">
+    <c:if test="${fn:contains(message,':')}">
+        <c:set value="${fn:substringAfter(message,':')}" var="key"/>
+        <c:set value="${fn:substringBefore(message,':')}" var="bundleName"/>
 
         <%
             Resource currentResource = (Resource)pageContext.findAttribute("currentResource");
@@ -29,7 +28,7 @@
         <c:set var="message"><fmt:message bundle="${bundle}" key="${key}"/></c:set>
     </c:if>
     <c:if test="${not fn:contains(fields['j:messageKey'],':')}">
-        <c:set var="message"><fmt:message key="${fields['j:messageKey']}"/></c:set>
+        <c:set var="message"><fmt:message key="${message}"/></c:set>
     </c:if>
 </c:if>
 

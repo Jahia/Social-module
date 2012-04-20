@@ -47,7 +47,6 @@ import org.jahia.services.content.rules.AddedNodeFact;
 import org.jahia.services.usermanager.JahiaUser;
 
 import javax.jcr.RepositoryException;
-import java.util.List;
 
 /**
  * Social service class for manipulating social activities from the
@@ -77,7 +76,7 @@ public class SocialRuleService {
         }
         final JahiaUser jahiaUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(user);
 
-        JCRNodeWrapper n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), "jnt:resourceBundleSocialActivity", nodeFact.getNode().getSession(), messageKey);
+        JCRNodeWrapper n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), "resourceBundle", nodeFact.getNode().getSession(), messageKey);
         drools.insert(new AddedNodeFact(n));
     }
 

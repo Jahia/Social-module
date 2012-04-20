@@ -15,13 +15,11 @@
  + * (jnt:socialActivity)
 
 [jnt:socialActivity] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
+ - j:activityType (string)
  - j:targetNode (string) nofulltext
 
 [jnt:simpleSocialActivity] > jnt:socialActivity
  - j:message (string) nofulltext
-
-[jnt:resourceBundleSocialActivity] > jnt:socialActivity
- - j:messageKey (string) nofulltext
 
 [jnt:socialMessage] > jnt:content, jmix:droppableContent, jmix:autoPublish, jmix:studioOnly
  - j:from (weakreference) < jnt:user

@@ -102,10 +102,10 @@ public class SocialService implements BeanPostProcessor {
     private Map<String, ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
 
     public void addActivity(final String user, final String message, JCRSessionWrapper session) throws RepositoryException {
-        addActivity(user, null, "jnt:simpleSocialActivity", session, message);
+        addActivity(user, null, "text", session, message);
     }
 
-    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, JCRSessionWrapper session, Object... args) throws RepositoryException {
+    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
         if (user == null || "".equals(user.trim())) {
             throw new ConstraintViolationException();
         }
@@ -118,15 +118,19 @@ public class SocialService implements BeanPostProcessor {
 
         JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
 
-        String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
-        JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
-        activityNode.setProperty("j:targetNode", targetNode.getPath());
+        if (activityRecorderMap.containsKey(activityType)) {
+            ActivityRecorder activityRecorder = activityRecorderMap.get(activityType);
+            String nodeType = activityRecorder.getNodeTypeForActivity(activityType);
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
+            JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
+            activityNode.setProperty("j:targetNode", targetNode.getPath());
+            activityNode.setProperty("j:activityType", targetNode.getPath());
+            activityRecorder.recordActivity(activityNode, activityType, user, targetNode, session, args);
 
-        if (activityRecorderMap.containsKey(nodeType)) {
-            activityRecorderMap.get(nodeType).recordActivity(activityNode, user, targetNode, session, args);
+            return activityNode;
         }
 
-        return activityNode;
+        throw new NoSuchNodeTypeException();
     }
 
     private JCRNodeWrapper getActivitiesNode(JCRSessionWrapper session, JCRNodeWrapper userNode) throws RepositoryException {
@@ -527,7 +531,7 @@ public class SocialService implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof ActivityRecorder) {
             ActivityRecorder activityRecorder = (ActivityRecorder) bean;
-            for (String activityType : activityRecorder.getActivityTypes()) {
+            for (String activityType : activityRecorder.getActivityTypes().keySet()) {
                 activityRecorderMap.put(activityType, activityRecorder);
             }
         }
