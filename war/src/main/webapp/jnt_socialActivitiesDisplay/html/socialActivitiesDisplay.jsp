@@ -18,13 +18,15 @@
 <c:set var="bindedComponent"
        value="${uiComponents:getBindedComponent(currentNode, renderContext, 'j:bindedComponent')}"/>
 <c:if test="${not empty bindedComponent}">
-        <c:if test="${jcr:isNodeType(bindedComponent, 'jnt:user')}">
+    <c:choose>
+        <c:when test="${jcr:isNodeType(bindedComponent, 'jnt:user')}">
             <social:get-connections var="connections" path="${bindedComponent.path}"/>
-        </c:if>
-        <c:if test="${not jcr:isNodeType(bindedComponent, 'jnt:user')}">
-            <social:get-acl-connections var="connections" path="${bindedComponent.path}"/>
-        </c:if>
-        <social:get-activities var="activities" sourcePaths="${connections}" pathFilter="${bindedComponent.path}" limit="${activitiesLimit.long}"/>
+            <social:get-activities var="activities" sourcePaths="${connections}" limit="${activitiesLimit.long}"/>
+        </c:when>
+        <c:otherwise>
+            <social:get-activities var="activities" pathFilter="${bindedComponent.path}" limit="${activitiesLimit.long}"/>
+        </c:otherwise>
+    </c:choose>
         <c:if test="${empty activities}">
             <fmt:message key="message.noActivitiesFound"/>
         </c:if>

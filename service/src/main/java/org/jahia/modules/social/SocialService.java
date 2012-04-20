@@ -43,7 +43,6 @@ package org.jahia.modules.social;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.api.Constants;
 import org.jahia.services.content.*;
-import org.jahia.services.usermanager.JahiaGroup;
 import org.jahia.services.usermanager.JahiaGroupManagerService;
 import org.jahia.services.usermanager.JahiaUser;
 import org.jahia.services.usermanager.JahiaUserManagerService;
@@ -64,7 +63,6 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
-import java.security.Principal;
 import java.util.*;
 
 /**
@@ -217,44 +215,6 @@ public class SocialService implements BeanPostProcessor {
         session.save();
     }
 
-    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, JCRNodeWrapper node, long limit, long offset, String pathFilter) throws RepositoryException {
-        Set<String> userPaths = getUserConnections(node.getPath(), true);
-        return getActivities(jcrSessionWrapper, userPaths, limit, offset, pathFilter);
-    }
-
-    public Set<String> getACLConnections(JCRSessionWrapper jcrSessionWrapper, JCRNodeWrapper targetNode) throws RepositoryException {
-        Set<String> userPaths = new HashSet<String>();
-
-        Map<String, List<String[]>> aclEntries = targetNode.getAclEntries();
-        for (Map.Entry<String, List<String[]>> curEntry : aclEntries.entrySet()) {
-            String curPrincipal = curEntry.getKey();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Resolving principal " + curPrincipal);
-            }
-            String[] principalParts = curPrincipal.split(":");
-            if ("u".equals(principalParts[0])) {
-                JCRUser jcrUser = getJCRUserFromUserKey(principalParts[1]);
-                userPaths.add(jcrUser.getNode(jcrSessionWrapper).getPath());
-            } else if ("g".equals(principalParts[0])) {
-                JahiaGroup group = groupManagerService.lookupGroup(targetNode.getResolveSite().getID(), principalParts[1]);
-                if (group == null) {
-                    group = groupManagerService.lookupGroup(principalParts[1]);
-                }
-                if (group != null) {
-                    Set<Principal> recursiveGroupMembers = group.getRecursiveUserMembers();
-                    for (Principal groupMember : recursiveGroupMembers) {
-                        JCRUser jcrUser = getJCRUserFromUserKey((groupMember instanceof JahiaUser) ? ((JahiaUser) groupMember).getUserKey() : groupMember.getName());
-                        if (jcrUser != null) {
-                            userPaths.add(jcrUser.getNode(jcrSessionWrapper).getPath());
-                        }
-                    }
-                }
-            }
-        }
-
-        return userPaths;
-    }
-
     public Set<String> getUserConnections(final String userNodePath, final boolean includeSelf)
             throws RepositoryException {
         final Set<String> userPaths = new HashSet<String>();
@@ -285,38 +245,45 @@ public class SocialService implements BeanPostProcessor {
         return userPaths;
     }
 
-    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> paths, long limit, long offset, String pathFilter) throws RepositoryException {
+    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> usersPaths, long limit, long offset, String targetTreeRootPath) throws RepositoryException {
         SortedSet<JCRNodeWrapper> activitiesSet = new TreeSet<JCRNodeWrapper>(ACTIVITIES_COMPARATOR);
-
-        /* todo here it would be better to do a query on all the paths, but it might be very slow. This would also solve the limit and offset problem */
-        QueryManager queryManager = jcrSessionWrapper.getWorkspace().getQueryManager();
-        for (String currentPath : paths) {
-            Query activitiesQuery = queryManager.createQuery("select * from [" + JNT_SOCIAL_ACTIVITY + "] as uA where isdescendantnode(uA,['" + currentPath + "']) order by [jcr:created] desc", Query.JCR_SQL2);
-            /* todo this usage of offset and limit is not really correct, we should perform this on the final aggregated list */
-            activitiesQuery.setLimit(limit);
-            activitiesQuery.setOffset(offset);
-            QueryResult activitiesResult = activitiesQuery.execute();
-
-            NodeIterator activitiesIterator = activitiesResult.getNodes();
-            while (activitiesIterator.hasNext()) {
-                JCRNodeWrapper activitiesNode = (JCRNodeWrapper) activitiesIterator.nextNode();
-                if (pathFilter != null) {
-                    /* todo maybe we could filter this using the JCR-SQL2 request directly ? */
-                    try {
-                        String targetNodeProperty = activitiesNode.getProperty("j:targetNode") != null ? activitiesNode.getProperty("j:targetNode").getString() : null;
-                        if (targetNodeProperty != null) {
-                            if (targetNodeProperty.startsWith(pathFilter)) {
-                                activitiesSet.add(activitiesNode);
-                            }
-                        }
-                    } catch (PathNotFoundException pnfe) {
-                        // we couldn't find the property, that's an acceptable situation.
-                    }
-                } else {
-                    activitiesSet.add(activitiesNode);
-                }
+        String statement;
+        if (usersPaths == null || usersPaths.isEmpty()) {
+            statement =
+                    "select * from [" + JNT_SOCIAL_ACTIVITY + "] as activity where activity.['j:targetNode'] like '" +
+                    targetTreeRootPath + "%' order by [jcr:created] desc";
+        } else {
+            StringBuilder statementBuilder = new StringBuilder().append("select * from [").append(
+                    JNT_SOCIAL_ACTIVITY).append("] as uA where ");
+            boolean addOr = false;
+            if (targetTreeRootPath != null) {
+                statementBuilder.append("(");
             }
+            for (String currentPath : usersPaths) {
+                if (addOr) {
+                    statementBuilder.append(" or ");
+                }
+                statementBuilder.append("isdescendantnode(uA,['").append(currentPath).append("'])");
+                addOr = true;
+            }
+            if (targetTreeRootPath != null) {
+                statementBuilder.append(") and uA.['j:targetNode'] like '").append(targetTreeRootPath).append("%'");
+            }
+            statementBuilder.append(" order by [jcr:created] desc");
+            statement = statementBuilder.toString();
         }
+        QueryManager queryManager = jcrSessionWrapper.getWorkspace().getQueryManager();
+        Query activitiesQuery = queryManager.createQuery(statement, Query.JCR_SQL2);
+        activitiesQuery.setLimit(limit);
+        activitiesQuery.setOffset(offset);
+        QueryResult activitiesResult = activitiesQuery.execute();
+
+        NodeIterator activitiesIterator = activitiesResult.getNodes();
+        while (activitiesIterator.hasNext()) {
+            JCRNodeWrapper activitiesNode = (JCRNodeWrapper) activitiesIterator.nextNode();
+            activitiesSet.add(activitiesNode);
+        }
+
         return activitiesSet;
     }
 
@@ -462,12 +429,14 @@ public class SocialService implements BeanPostProcessor {
         values.add(new WorkflowVariable(from.getUsername(), 1));
         args.put("jcr:title", values);
 
-        JCRTemplate.getInstance().doExecuteWithSystemSession(from.getUsername(), null, Locale.ENGLISH, new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                workflowService.startProcess(Arrays.asList(from.getNode(session).getIdentifier()), session, "user-connection", "jBPM", args, null);
-                return true;
-            }
-        });
+        JCRTemplate.getInstance().doExecuteWithSystemSession(from.getUsername(), null, Locale.ENGLISH,
+                new JCRCallback<Boolean>() {
+                    public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
+                        workflowService.startProcess(Arrays.asList(from.getNode(session).getIdentifier()), session,
+                                "user-connection", "jBPM", args, null);
+                        return true;
+                    }
+                });
     }
 
     private JCRUser getJCRUserFromUserKey(String userKey) {
