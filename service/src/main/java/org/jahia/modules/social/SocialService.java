@@ -118,16 +118,15 @@ public class SocialService implements BeanPostProcessor {
 
         JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
 
-        if (activityRecorderMap.containsKey(nodeType)) {
-            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
-            JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
-            activityNode.setProperty("j:targetNode", targetNode.getPath());
-            activityRecorderMap.get(nodeType).recordActivity(activityNode, user, targetNode, session, args);
+        String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
+        JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
+        activityNode.setProperty("j:targetNode", targetNode.getPath());
 
-            return activityNode;
+        if (activityRecorderMap.containsKey(nodeType)) {
+            activityRecorderMap.get(nodeType).recordActivity(activityNode, user, targetNode, session, args);
         }
 
-        throw new NoSuchNodeTypeException();
+        return activityNode;
     }
 
     private JCRNodeWrapper getActivitiesNode(JCRSessionWrapper session, JCRNodeWrapper userNode) throws RepositoryException {

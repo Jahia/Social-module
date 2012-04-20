@@ -1,2 +1,3 @@
-[consequence][]Add activity {activityType} on {node} of types {nodeTypeList} for user {user} with messageKey {messageKey}=socialService.addResourceBundleActivity({activityType}, {user},{messageKey}, {node}, {nodeTypeList}, drools);
+[consequence][]Add activity on {node} with message key {messageKey}=socialService.addResourceBundleActivity(user.getName(),{messageKey}, {node}, drools);
+[consequence][]Add activity of type {activityType} on {node}=socialService.addActivity({activityType}, user.getName(), {node}, drools);
 [consequence][]Send message {message} with subject {subject} from user {fromUser} to user {toUser}=socialService.sendMessage({fromUser}, {toUser}, {subject}, {message}, drools);

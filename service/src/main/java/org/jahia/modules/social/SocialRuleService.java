@@ -61,7 +61,17 @@ public class SocialRuleService {
 
     /* Rules Consequence implementations */
 
-    public void addResourceBundleActivity(final String activityType, final String user, final String messageKey, final AddedNodeFact nodeFact, final List<String> nodeTypeList, KnowledgeHelper drools) throws RepositoryException {
+    public void addActivity(final String activityType, final String user, final AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
+        if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
+            return;
+        }
+        final JahiaUser jahiaUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(user);
+
+        JCRNodeWrapper n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), activityType, nodeFact.getNode().getSession());
+        drools.insert(new AddedNodeFact(n));
+    }
+
+    public void addResourceBundleActivity(final String user, final String messageKey, final AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
         if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
             return;
         }
