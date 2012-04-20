@@ -35,6 +35,7 @@ package org.jahia.modules.social;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 
+import javax.jcr.RepositoryException;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ import java.util.List;
 public interface ActivityRecorder {
 
     void recordActivity(String activityType, String user, JCRNodeWrapper activityNode, JCRNodeWrapper targetNode,
-                        JCRSessionWrapper session, String[] args);
+                        JCRSessionWrapper session, Object[] args) throws RepositoryException;
 
     List<String> getActivityTypes();
 }

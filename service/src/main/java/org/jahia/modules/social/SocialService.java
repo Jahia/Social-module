@@ -63,6 +63,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -112,11 +113,9 @@ public class SocialService implements BeanPostProcessor {
     public void addActivity(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session) throws RepositoryException {
         try {
             if (messageKey != null) {
-                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:resourceBundleSocialActivity", activityType, session);
-                activityNode.setProperty("j:messageKey", messageKey);
+                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:resourceBundleSocialActivity", activityType, session, messageKey);
             } else if (message != null) {
-                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:simpleSocialActivity", activityType, session);
-                activityNode.setProperty("j:message", message);
+                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:simpleSocialActivity", activityType, session, message);
             }
         } catch (ConstraintViolationException e) {
             logger.debug("Cannot create activity", e);
@@ -124,7 +123,7 @@ public class SocialService implements BeanPostProcessor {
         session.save();
     }
 
-    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session, String... args) throws RepositoryException {
+    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
         if (user == null || "".equals(user.trim())) {
             throw new ConstraintViolationException();
         }
@@ -137,20 +136,23 @@ public class SocialService implements BeanPostProcessor {
 
         JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
 
-        String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
-        JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
         if (activityRecorderMap.containsKey(nodeType)) {
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
+            JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
+            activityNode.setProperty("j:targetNode", targetNode.getPath());
             activityRecorderMap.get(nodeType).recordActivity(activityType, user, activityNode, targetNode, session, args);
-        } else {
-//        activityNode.setProperty("j:from", userNode);
-            if (targetNode != null) {
-                activityNode.setProperty("j:targetNode", targetNode.getPath());
-            }
-            if (activityType != null) {
-                activityNode.setProperty("j:type", activityType);
-            }
+
+            return activityNode;
         }
-        return activityNode;
+//        else {
+//        activityNode.setProperty("j:from", userNode);
+//            if (targetNode != null) {
+//            }
+//            if (activityType != null) {
+//                activityNode.setProperty("j:type", activityType);
+//            }
+//        }
+        throw new NoSuchNodeTypeException();
     }
 
     public void addActivityFromRules(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session, KnowledgeHelper drools) throws RepositoryException {
