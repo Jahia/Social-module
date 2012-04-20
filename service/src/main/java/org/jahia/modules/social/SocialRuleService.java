@@ -42,6 +42,7 @@ package org.jahia.modules.social;
 
 import org.drools.spi.KnowledgeHelper;
 import org.jahia.registries.ServicesRegistry;
+import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.rules.AddedNodeFact;
 import org.jahia.services.usermanager.JahiaUser;
 
@@ -66,7 +67,8 @@ public class SocialRuleService {
         }
         final JahiaUser jahiaUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(user);
 
-        socialService.addActivityFromRules(activityType, jahiaUser.getUserKey(), null, messageKey, nodeFact.getNode(), nodeTypeList, nodeFact.getNode().getSession(), drools);
+        JCRNodeWrapper n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), "jnt:resourceBundleSocialActivity", nodeFact.getNode().getSession(), messageKey);
+        drools.insert(new AddedNodeFact(n));
     }
 
     public void sendMessage(final String fromUser, final String toUser, final String subject, final String message, AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {

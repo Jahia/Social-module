@@ -47,7 +47,7 @@ import java.util.List;
  */
 public interface ActivityRecorder {
 
-    void recordActivity(String activityType, String user, JCRNodeWrapper activityNode, JCRNodeWrapper targetNode,
+    void recordActivity(JCRNodeWrapper activityNode, String user, JCRNodeWrapper targetNode,
                         JCRSessionWrapper session, Object[] args) throws RepositoryException;
 
     List<String> getActivityTypes();

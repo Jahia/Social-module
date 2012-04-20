@@ -10,7 +10,7 @@ import java.util.List;
 public class DefaultSocialActivityRecorder implements ActivityRecorder {
     private List<String> types = Arrays.asList("jnt:simpleSocialActivity","jnt:resourceBundleSocialActivity");
 
-    public void recordActivity(String activityType, String user, JCRNodeWrapper activityNode, JCRNodeWrapper targetNode, JCRSessionWrapper session, Object[] args) throws RepositoryException {
+    public void recordActivity(JCRNodeWrapper activityNode, String user, JCRNodeWrapper targetNode, JCRSessionWrapper session, Object[] args) throws RepositoryException {
         if (args.length>0) {
             String arg = (String) args[0];
             if (activityNode.isNodeType("jnt:resourceBundleSocialActivity")) {

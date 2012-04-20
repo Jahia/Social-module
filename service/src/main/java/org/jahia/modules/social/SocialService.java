@@ -41,11 +41,8 @@
 package org.jahia.modules.social;
 
 import org.apache.commons.lang.StringUtils;
-import org.drools.spi.KnowledgeHelper;
 import org.jahia.api.Constants;
 import org.jahia.services.content.*;
-import org.jahia.services.content.rules.AddedNodeFact;
-import org.jahia.services.content.rules.ChangedPropertyFact;
 import org.jahia.services.usermanager.JahiaGroup;
 import org.jahia.services.usermanager.JahiaGroupManagerService;
 import org.jahia.services.usermanager.JahiaUser;
@@ -113,9 +110,9 @@ public class SocialService implements BeanPostProcessor {
     public void addActivity(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session) throws RepositoryException {
         try {
             if (messageKey != null) {
-                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:resourceBundleSocialActivity", activityType, session, messageKey);
+                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:resourceBundleSocialActivity", session, messageKey);
             } else if (message != null) {
-                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:simpleSocialActivity", activityType, session, message);
+                JCRNodeWrapper activityNode = addActivity(user, targetNode, "jnt:simpleSocialActivity", session, message);
             }
         } catch (ConstraintViolationException e) {
             logger.debug("Cannot create activity", e);
@@ -123,7 +120,7 @@ public class SocialService implements BeanPostProcessor {
         session.save();
     }
 
-    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
+    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, JCRSessionWrapper session, Object... args) throws RepositoryException {
         if (user == null || "".equals(user.trim())) {
             throw new ConstraintViolationException();
         }
@@ -140,61 +137,12 @@ public class SocialService implements BeanPostProcessor {
             String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
             JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
             activityNode.setProperty("j:targetNode", targetNode.getPath());
-            activityRecorderMap.get(nodeType).recordActivity(activityType, user, activityNode, targetNode, session, args);
+            activityRecorderMap.get(nodeType).recordActivity(activityNode, user, targetNode, session, args);
 
             return activityNode;
         }
-//        else {
-//        activityNode.setProperty("j:from", userNode);
-//            if (targetNode != null) {
-//            }
-//            if (activityType != null) {
-//                activityNode.setProperty("j:type", activityType);
-//            }
-//        }
+
         throw new NoSuchNodeTypeException();
-    }
-
-    public void addActivityFromRules(final String activityType, final String user, final String message, final String messageKey, final JCRNodeWrapper targetNode, final List<String> nodeTypeList, JCRSessionWrapper session, KnowledgeHelper drools) throws RepositoryException {
-        if (user == null || "".equals(user.trim())) {
-            return;
-        }
-        final JCRUser fromJCRUser = getJCRUserFromUserKey(user);
-        if (fromJCRUser == null) {
-            logger.warn("No user found, not adding activity !");
-            return;
-        }
-        JCRNodeWrapper userNode = fromJCRUser.getNode(session);
-
-        JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
-
-        AddedNodeFact activityNode;
-        //        drools.insert(new ChangedPropertyFact(activityNode,"j:from", userNode.getIdentifier(),drools));
-        if (messageKey != null) {
-            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:resourceBundleSocialActivity");
-            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:resourceBundleSocialActivity", drools);
-            drools.insert(activityNode);
-            drools.insert(new ChangedPropertyFact(activityNode, "j:messageKey", messageKey, drools));
-        } else if (message != null) {
-            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:simpleSocialActivity");
-            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:simpleSocialActivity", drools);
-            drools.insert(activityNode);
-            drools.insert(new ChangedPropertyFact(activityNode, "j:message", message, drools));
-        } else {
-            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:socialActivity");
-            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:socialActivity", drools);
-        }
-
-        if (targetNode != null) {
-            drools.insert(new ChangedPropertyFact(activityNode, "j:targetNode", targetNode.getPath(), drools));
-        }
-//        if (nodeTypeList != null && !nodeTypeList.isEmpty()) {
-//            String[] targetNodeTypes = nodeTypeList.toArray(new String[nodeTypeList.size()]);
-//            drools.insert(new ChangedPropertyFact(activityNode,"j:targetNodeTypes", targetNodeTypes,drools));
-//        }
-        if (activityType != null) {
-            drools.insert(new ChangedPropertyFact(activityNode, "j:type", activityType, drools));
-        }
     }
 
     private JCRNodeWrapper getActivitiesNode(JCRSessionWrapper session, JCRNodeWrapper userNode) throws RepositoryException {
