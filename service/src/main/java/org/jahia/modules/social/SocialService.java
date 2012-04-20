@@ -82,28 +82,28 @@ public class SocialService implements BeanPostProcessor {
     public static final String JNT_SOCIAL_CONNECTION = "jnt:socialConnection";
     private static final Comparator<? super JCRNodeWrapper> ACTIVITIES_COMPARATOR = new Comparator<JCRNodeWrapper>() {
 
-            public int compare(JCRNodeWrapper activityNode1, JCRNodeWrapper activityNode2) {
-                try {
-                    // we invert the order to sort with most recent dates on top.
-                    return activityNode2.getProperty("jcr:created").getDate().compareTo(activityNode1.getProperty("jcr:created").getDate());
-                } catch (RepositoryException e) {
-                    logger.error("Error while comparing creation date on two activities, returning them as equal", e);
-                    return 0;
-                }
+        public int compare(JCRNodeWrapper activityNode1, JCRNodeWrapper activityNode2) {
+            try {
+                // we invert the order to sort with most recent dates on top.
+                return activityNode2.getProperty("jcr:created").getDate().compareTo(activityNode1.getProperty("jcr:created").getDate());
+            } catch (RepositoryException e) {
+                logger.error("Error while comparing creation date on two activities, returning them as equal", e);
+                return 0;
             }
+        }
 
-        };
+    };
 
-     private static final String JMIX_AUTOPUBLISH = "jmix:autoPublish";
-    
+    private static final String JMIX_AUTOPUBLISH = "jmix:autoPublish";
+
     private String autoSplitSettings;
     private JCRUserManagerProvider jcrUserManager;
     private JahiaGroupManagerService groupManagerService;
     private JahiaUserManagerService userManagerService;
     private WorkflowService workflowService;
-	private JCRContentUtils jcrContentUtils;
+    private JCRContentUtils jcrContentUtils;
 
-    private Map<String,ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
+    private Map<String, ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
 
     public void addActivity(final String user, final String message, JCRSessionWrapper session) throws RepositoryException {
         addActivity(null, user, message, null, null, null, session);
@@ -119,12 +119,12 @@ public class SocialService implements BeanPostProcessor {
                 activityNode.setProperty("j:message", message);
             }
         } catch (ConstraintViolationException e) {
-            logger.debug("Cannot create activity",e);
+            logger.debug("Cannot create activity", e);
         }
         session.save();
     }
 
-    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session, String...args) throws RepositoryException {
+    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String nodeType, final String activityType, JCRSessionWrapper session, String... args) throws RepositoryException {
         if (user == null || "".equals(user.trim())) {
             throw new ConstraintViolationException();
         }
@@ -139,17 +139,16 @@ public class SocialService implements BeanPostProcessor {
 
         String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
         JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
-        if(activityRecorderMap.containsKey(nodeType)) {
-          activityRecorderMap.get(nodeType).recordActivity(activityType,user,activityNode,targetNode,session,args);
-        }
-        else {
+        if (activityRecorderMap.containsKey(nodeType)) {
+            activityRecorderMap.get(nodeType).recordActivity(activityType, user, activityNode, targetNode, session, args);
+        } else {
 //        activityNode.setProperty("j:from", userNode);
-        if (targetNode != null) {
-            activityNode.setProperty("j:targetNode", targetNode.getPath());
-        }
-        if (activityType != null) {
-            activityNode.setProperty("j:type", activityType);
-        }
+            if (targetNode != null) {
+                activityNode.setProperty("j:targetNode", targetNode.getPath());
+            }
+            if (activityType != null) {
+                activityNode.setProperty("j:type", activityType);
+            }
         }
         return activityNode;
     }
@@ -170,29 +169,29 @@ public class SocialService implements BeanPostProcessor {
         AddedNodeFact activityNode;
         //        drools.insert(new ChangedPropertyFact(activityNode,"j:from", userNode.getIdentifier(),drools));
         if (messageKey != null) {
-            String nodeName = jcrContentUtils.generateNodeName(activitiesNode,  "jnt:resourceBundleSocialActivity");
-            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName,  "jnt:resourceBundleSocialActivity", drools);
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:resourceBundleSocialActivity");
+            activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:resourceBundleSocialActivity", drools);
             drools.insert(activityNode);
-            drools.insert(new ChangedPropertyFact(activityNode,"j:messageKey", messageKey,drools));
+            drools.insert(new ChangedPropertyFact(activityNode, "j:messageKey", messageKey, drools));
         } else if (message != null) {
             String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:simpleSocialActivity");
             activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:simpleSocialActivity", drools);
             drools.insert(activityNode);
-            drools.insert(new ChangedPropertyFact(activityNode,"j:message", message,drools));
+            drools.insert(new ChangedPropertyFact(activityNode, "j:message", message, drools));
         } else {
             String nodeName = jcrContentUtils.generateNodeName(activitiesNode, "jnt:socialActivity");
             activityNode = new AddedNodeFact(new AddedNodeFact(activitiesNode), nodeName, "jnt:socialActivity", drools);
         }
 
         if (targetNode != null) {
-            drools.insert(new ChangedPropertyFact(activityNode,"j:targetNode", targetNode.getPath(),drools));
+            drools.insert(new ChangedPropertyFact(activityNode, "j:targetNode", targetNode.getPath(), drools));
         }
 //        if (nodeTypeList != null && !nodeTypeList.isEmpty()) {
 //            String[] targetNodeTypes = nodeTypeList.toArray(new String[nodeTypeList.size()]);
 //            drools.insert(new ChangedPropertyFact(activityNode,"j:targetNodeTypes", targetNodeTypes,drools));
 //        }
         if (activityType != null) {
-            drools.insert(new ChangedPropertyFact(activityNode,"j:type", activityType,drools));
+            drools.insert(new ChangedPropertyFact(activityNode, "j:type", activityType, drools));
         }
     }
 
@@ -227,17 +226,17 @@ public class SocialService implements BeanPostProcessor {
             }
         });
     }
-    
+
     public boolean sendMessage(String fromUserKey, String toUserKey, final String subject, final String body, JCRSessionWrapper session) throws RepositoryException {
         JCRUser fromJCRUser = getJCRUserFromUserKey(fromUserKey);
         if (fromJCRUser == null) {
-            logger.warn("Couldn't find from user "+fromUserKey+" , aborting message sending...");
+            logger.warn("Couldn't find from user " + fromUserKey + " , aborting message sending...");
             return false;
         }
         JCRUser jcrUser = getJCRUserFromUserKey(toUserKey);
 
         if (jcrUser == null) {
-            logger.warn("Couldn't find to user "+toUserKey+" , aborting message sending...");
+            logger.warn("Couldn't find to user " + toUserKey + " , aborting message sending...");
             return false;
         }
 
@@ -300,7 +299,7 @@ public class SocialService implements BeanPostProcessor {
                 JCRUser jcrUser = getJCRUserFromUserKey(principalParts[1]);
                 userPaths.add(jcrUser.getNode(jcrSessionWrapper).getPath());
             } else if ("g".equals(principalParts[0])) {
-                JahiaGroup group = groupManagerService.lookupGroup(targetNode.getResolveSite().getID(),principalParts[1]);
+                JahiaGroup group = groupManagerService.lookupGroup(targetNode.getResolveSite().getID(), principalParts[1]);
                 if (group == null) {
                     group = groupManagerService.lookupGroup(principalParts[1]);
                 }
@@ -355,7 +354,7 @@ public class SocialService implements BeanPostProcessor {
         /* todo here it would be better to do a query on all the paths, but it might be very slow. This would also solve the limit and offset problem */
         QueryManager queryManager = jcrSessionWrapper.getWorkspace().getQueryManager();
         for (String currentPath : paths) {
-            Query activitiesQuery = queryManager.createQuery("select * from ["+JNT_SOCIAL_ACTIVITY+"] as uA where isdescendantnode(uA,['"+currentPath+"']) order by [jcr:created] desc", Query.JCR_SQL2);
+            Query activitiesQuery = queryManager.createQuery("select * from [" + JNT_SOCIAL_ACTIVITY + "] as uA where isdescendantnode(uA,['" + currentPath + "']) order by [jcr:created] desc", Query.JCR_SQL2);
             /* todo this usage of offset and limit is not really correct, we should perform this on the final aggregated list */
             activitiesQuery.setLimit(limit);
             activitiesQuery.setOffset(offset);
@@ -367,7 +366,7 @@ public class SocialService implements BeanPostProcessor {
                 if (pathFilter != null) {
                     /* todo maybe we could filter this using the JCR-SQL2 request directly ? */
                     try {
-                        String targetNodeProperty = activitiesNode.getProperty("j:targetNode")!=null?activitiesNode.getProperty("j:targetNode").getString():null;
+                        String targetNodeProperty = activitiesNode.getProperty("j:targetNode") != null ? activitiesNode.getProperty("j:targetNode").getString() : null;
                         if (targetNodeProperty != null) {
                             if (targetNodeProperty.startsWith(pathFilter)) {
                                 activitiesSet.add(activitiesNode);
@@ -431,15 +430,16 @@ public class SocialService implements BeanPostProcessor {
     }
 
     /**
-     * Creates the social connection between two users. 
-     * @param fromUserKey the source user key
-     * @param toUserKey the target user key
+     * Creates the social connection between two users.
+     *
+     * @param fromUserKey    the source user key
+     * @param toUserKey      the target user key
      * @param connectionType the connection type
      * @throws RepositoryException in case of an error
      */
     public void createSocialConnection(String fromUserKey, String toUserKey, final String connectionType)
             throws RepositoryException {
-        
+
         JCRUser from = getJCRUserFromUserKey(fromUserKey);
         if (from == null) {
             throw new IllegalArgumentException("Cannot find user with key " + fromUserKey);
@@ -449,7 +449,7 @@ public class SocialService implements BeanPostProcessor {
         if (to == null) {
             throw new IllegalArgumentException("Cannot find user with key " + toUserKey);
         }
-        
+
         final String leftUserIdentifier = from.getIdentifier();
         final String rightUserIdentifier = to.getIdentifier();
 
@@ -500,15 +500,16 @@ public class SocialService implements BeanPostProcessor {
     }
 
     /**
-     * Starts the workflow process for accepting the social connection between two users. 
-     * @param fromUserKey the source user key
-     * @param toUserKey the target user key
+     * Starts the workflow process for accepting the social connection between two users.
+     *
+     * @param fromUserKey    the source user key
+     * @param toUserKey      the target user key
      * @param connectionType the connection type
      * @throws RepositoryException in case of an error
      */
     public void requestSocialConnection(String fromUserKey, String toUserKey, String connectionType)
             throws RepositoryException {
-        
+
         final JCRUser from = getJCRUserFromUserKey(fromUserKey);
         if (from == null) {
             throw new IllegalArgumentException("Cannot find user with key " + fromUserKey);
@@ -537,7 +538,7 @@ public class SocialService implements BeanPostProcessor {
 
         JahiaUser jahiaUser = userManagerService.lookupUserByKey(userKey);
         if (jahiaUser == null) {
-            logger.error ("Couldn't lookup user with userKey [" + userKey + "]");
+            logger.error("Couldn't lookup user with userKey [" + userKey + "]");
             return null;
         }
 
@@ -585,15 +586,15 @@ public class SocialService implements BeanPostProcessor {
         this.workflowService = workflowService;
     }
 
-	/**
+    /**
      * @param jcrContentUtils the jcrContentUtils to set
      */
     public void setJCRContentUtils(JCRContentUtils jcrContentUtils) {
         this.jcrContentUtils = jcrContentUtils;
-		if (jcrContentUtils.getNameGenerationHelper() != null &&
-		    jcrContentUtils.getNameGenerationHelper() instanceof DefaultNameGenerationHelperImpl) {
-		    ((DefaultNameGenerationHelperImpl)jcrContentUtils.getNameGenerationHelper()).getRandomizedNames().add(JNT_SOCIAL_ACTIVITY);
-		}
+        if (jcrContentUtils.getNameGenerationHelper() != null &&
+                jcrContentUtils.getNameGenerationHelper() instanceof DefaultNameGenerationHelperImpl) {
+            ((DefaultNameGenerationHelperImpl) jcrContentUtils.getNameGenerationHelper()).getRandomizedNames().add(JNT_SOCIAL_ACTIVITY);
+        }
     }
 
     /**
@@ -619,10 +620,10 @@ public class SocialService implements BeanPostProcessor {
      * @see org.springframework.beans.factory.FactoryBean
      */
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if(bean instanceof ActivityRecorder) {
+        if (bean instanceof ActivityRecorder) {
             ActivityRecorder activityRecorder = (ActivityRecorder) bean;
             for (String activityType : activityRecorder.getActivityTypes()) {
-                activityRecorderMap.put(activityType,activityRecorder);
+                activityRecorderMap.put(activityType, activityRecorder);
             }
         }
         return bean;
