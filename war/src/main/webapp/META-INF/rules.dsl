@@ -1,4 +1,4 @@
-[consequence][]Add activity on {node} with message key {messageKey}=socialService.addResourceBundleActivity(user.getName(),{messageKey}, {node}, drools);
+[consequence][]Add activity on {node} with message key {messageKey}=socialService.addActivity("resourceBundle", user.getName(), {node}, {messageKey}, drools);
 [consequence][]Add activity of type {activityType} on {node}=socialService.addActivity({activityType}, user.getName(), {node}, null, drools);
 [consequence][]Add activity of type {activityType} on {node} with parameter {param}=socialService.addActivity({activityType}, user.getName(), {node}, {param}, drools);
 [consequence][]Send message {message} with subject {subject} from user {fromUser} to user {toUser}=socialService.sendMessage({fromUser}, {toUser}, {subject}, {message}, drools);

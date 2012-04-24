@@ -74,16 +74,6 @@ public class SocialRuleService {
         drools.insert(new AddedNodeFact(n));
     }
 
-    public void addResourceBundleActivity(final String user, final String messageKey, final AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
-        if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
-            return;
-        }
-        final JahiaUser jahiaUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(user);
-
-        JCRNodeWrapper n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), "resourceBundle", nodeFact.getNode().getSession(), messageKey);
-        drools.insert(new AddedNodeFact(n));
-    }
-
     public void sendMessage(final String fromUser, final String toUser, final String subject, final String message, AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
         if (fromUser == null || "".equals(fromUser.trim()) || fromUser.equals(" system ")) {
             return;
