@@ -14,17 +14,9 @@
     });
 </script>
 <template:include view="hidden.header"/>
-<div class="boxsocial">
-    <div class="boxsocialpadding10 boxsocialmarginbottom16">
-        <div class="boxsocial-inner">
-            <div class="boxsocial-inner-border"><!--start boxsocial -->
                 <ul class="activitiesList">
                     <c:forEach items="${moduleMap.currentList}" var="activity" begin="${moduleMap.begin}" end="${moduleMap.end}">
                         <template:module path="${activity.path}"/>
                     </c:forEach>
                 </ul>
-            </div>
-        </div>
-    </div>
-</div>
 <template:include view="hidden.footer"/>

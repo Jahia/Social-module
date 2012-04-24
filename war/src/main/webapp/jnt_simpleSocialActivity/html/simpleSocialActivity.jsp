@@ -53,14 +53,13 @@
         <div class="activityInnerContent">
 
             <c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
-            <h5 class='author'>${fn:escapeXml(not empty fromUser ? user:userFullName(fromUser) : fields["jcr:createdBy"])}</h5>
+            <p class='author'>${fn:escapeXml(not empty fromUser ? user:userFullName(fromUser) : fields["jcr:createdBy"])}</p>
             <jcr:node var="targetNode" path="${currentNode.properties['j:targetNode'].string}"/>
             <p class="message">${fn:escapeXml(message)}&nbsp;
                 <c:if test="${not empty targetNode and jcr:isDisplayable(targetNode, renderContext)}">
                     <a href="<c:url value='${url.base}${targetNode.path}.html'/>">${fn:escapeXml(targetNode.displayableName)}</a>
                 </c:if>
             </p>
-
             <jcr:nodeProperty node="${currentNode}" name="jcr:lastModified" var="lastModified"/>
             <span class="timestamp"><fmt:formatDate value="${lastModified.time}" pattern="yyyy/MM/dd HH:mm:ss"/></span>
         </div>
