@@ -13,36 +13,18 @@
         $('.timestamp').cuteTime({ refresh: 60000 });
     });
 </script>
-<jcr:nodeProperty node="${currentNode}" name="j:connectionSource" var="connectionSource"/>
-<jcr:nodeProperty node="${currentNode}" name="j:activitiesLimit" var="activitiesLimit"/>
-<c:set var="bindedComponent"
-       value="${uiComponents:getBindedComponent(currentNode, renderContext, 'j:bindedComponent')}"/>
-<c:if test="${not empty bindedComponent}">
-    <c:choose>
-        <c:when test="${jcr:isNodeType(bindedComponent, 'jnt:user')}">
-            <social:get-connections var="connections" path="${bindedComponent.path}"/>
-            <social:get-activities var="activities" sourcePaths="${connections}" limit="${activitiesLimit.long}"/>
-        </c:when>
-        <c:otherwise>
-            <social:get-activities var="activities" pathFilter="${bindedComponent.path}" limit="${activitiesLimit.long}"/>
-        </c:otherwise>
-    </c:choose>
-        <c:if test="${empty activities}">
-            <fmt:message key="message.noActivitiesFound"/>
-        </c:if>
-        <c:if test="${not empty activities}">
-            <div class="boxsocial">
-                <div class="boxsocialpadding10 boxsocialmarginbottom16">
-                    <div class="boxsocial-inner">
-                        <div class="boxsocial-inner-border"><!--start boxsocial -->
-                            <ul class="activitiesList">
-                                <c:forEach items="${activities}" var="activity">
-                                    <template:module path="${activity.path}"/>
-                                </c:forEach>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+<template:include view="hidden.header"/>
+<div class="boxsocial">
+    <div class="boxsocialpadding10 boxsocialmarginbottom16">
+        <div class="boxsocial-inner">
+            <div class="boxsocial-inner-border"><!--start boxsocial -->
+                <ul class="activitiesList">
+                    <c:forEach items="${moduleMap.currentList}" var="activity" begin="${moduleMap.begin}" end="${moduleMap.end}">
+                        <template:module path="${activity.path}"/>
+                    </c:forEach>
+                </ul>
             </div>
-        </c:if>
-</c:if>
+        </div>
+    </div>
+</div>
+<template:include view="hidden.footer"/>
