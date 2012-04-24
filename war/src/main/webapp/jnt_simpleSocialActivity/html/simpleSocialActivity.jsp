@@ -32,7 +32,6 @@
     </c:if>
 </c:if>
 
-<li>
     <div class="activityContent">
         <div class='image'>
             <div class='itemImageLeft'>
@@ -53,7 +52,7 @@
         <div class="activityInnerContent">
 
             <c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
-            <p class='author'>${fn:escapeXml(not empty fromUser ? user:userFullName(fromUser) : fields["jcr:createdBy"])}</p>
+            <p class='author'><a href="<c:url value='${url.base}${fromUser.path}.html'/>">${fn:escapeXml(not empty fromUser ? user:userFullName(fromUser) : fields["jcr:createdBy"])}</a></p>
             <jcr:node var="targetNode" path="${currentNode.properties['j:targetNode'].string}"/>
             <p class="message">${fn:escapeXml(message)}&nbsp;
                 <c:if test="${not empty targetNode and jcr:isDisplayable(targetNode, renderContext)}">
@@ -65,4 +64,3 @@
         </div>
     </div>
     <div class='clear'></div>
-</li>

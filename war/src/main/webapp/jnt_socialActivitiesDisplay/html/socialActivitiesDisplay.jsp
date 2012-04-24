@@ -8,9 +8,13 @@
 <%@ taglib prefix="uiComponents" uri="http://www.jahia.org/tags/uiComponentsLib" %>
 <template:addResources type="javascript" resources="jquery.min.js"/>
 <template:addResources type="javascript" resources="jquery.cuteTime.js"/>
+<<<<<<< Updated upstream
 
 <template:addResources type="css" resources="social-activities-display.css"/>
 
+=======
+<template:addResources type="css" resources="social-activities-display.css"/>
+>>>>>>> Stashed changes
 <script type="text/javascript">
     $(document).ready(function() {
         $('.timestamp').cuteTime({ refresh: 60000 });
@@ -19,7 +23,9 @@
 <template:include view="hidden.header"/>
                 <ul class="activitiesList">
                     <c:forEach items="${moduleMap.currentList}" var="activity" begin="${moduleMap.begin}" end="${moduleMap.end}">
+                        <li>
                         <template:module path="${activity.path}"/>
+                        </li>
                     </c:forEach>
                 </ul>
 <template:include view="hidden.footer"/>
