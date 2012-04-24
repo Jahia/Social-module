@@ -60,13 +60,17 @@ public class SocialRuleService {
 
     /* Rules Consequence implementations */
 
-    public void addActivity(final String activityType, final String user, final AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
+    public void addActivity(final String activityType, final String user, final AddedNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
         if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
             return;
         }
         final JahiaUser jahiaUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(user);
-
-        JCRNodeWrapper n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), activityType, nodeFact.getNode().getSession());
+        JCRNodeWrapper n;
+        if (param != null) {
+            n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), activityType, nodeFact.getNode().getSession(), param);
+        } else {
+            n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), activityType, nodeFact.getNode().getSession());
+        }
         drools.insert(new AddedNodeFact(n));
     }
 
