@@ -8,13 +8,8 @@
 <%@ taglib prefix="uiComponents" uri="http://www.jahia.org/tags/uiComponentsLib" %>
 <template:addResources type="javascript" resources="jquery.min.js"/>
 <template:addResources type="javascript" resources="jquery.cuteTime.js"/>
-<<<<<<< Updated upstream
-
 <template:addResources type="css" resources="social-activities-display.css"/>
 
-=======
-<template:addResources type="css" resources="social-activities-display.css"/>
->>>>>>> Stashed changes
 <script type="text/javascript">
     $(document).ready(function() {
         $('.timestamp').cuteTime({ refresh: 60000 });
