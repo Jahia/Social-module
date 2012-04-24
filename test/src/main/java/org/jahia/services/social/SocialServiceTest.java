@@ -44,12 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
 
 import javax.jcr.RepositoryException;
 
@@ -130,6 +125,21 @@ public class SocialServiceTest {
     private void cleanUpUser(JCRUser user, JCRSessionWrapper session) throws RepositoryException {
         JCRNodeWrapper userNode = user.getNode(session);
         session.checkout(userNode);
+        List<WorkflowTask> tasks = workflowService.getTasksForUser(user, Locale.ENGLISH);
+        for (WorkflowTask task : tasks) {
+            try {
+                workflowService.completeTask(task.getId(),task.getProvider(),task.getOutcomes().iterator().next(),
+                        new HashMap<String, Object>());
+            } catch (Exception e) {
+                try {
+                    workflowService.abortProcess(task.getProcessId(), task.getProvider());
+                } catch (Exception e1) {
+                    workflowService.deleteProcess(task.getProcessId(), task.getProvider());
+                }
+            }
+        }
+        tasks = workflowService.getTasksForUser(user, Locale.ENGLISH);
+        assertTrue("user should have no tasks remaining",tasks.isEmpty());
         if (userNode.hasNode("activities")) {
             userNode.getNode("activities").remove();
         }
@@ -153,7 +163,7 @@ public class SocialServiceTest {
         WorkflowTask task = tasks.get(0);
         // reject the connection
         workflowService.completeTask(task.getId(), task.getProvider(), doAccept ? "accept" : "reject",
-                new HashMap<String, Object>(), to);
+                new HashMap<String, Object>());
 
         tasks = workflowService.getTasksForUser(to, Locale.ENGLISH);
         assertEquals("There should be no pending tasks for user '" + to.getName() + "'", 0, tasks.size());
@@ -161,7 +171,18 @@ public class SocialServiceTest {
 
     @Before
     public void setUp() throws RepositoryException {
-        // do nothing
+        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
+            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
+                cleanUpUser(romeo, session);
+                cleanUpUser(juliet, session);
+                cleanUpUser(tristan, session);
+                cleanUpUser(iseult, session);
+
+                session.save();
+
+                return true;
+            }
+        });
     }
 
     @After
@@ -181,11 +202,11 @@ public class SocialServiceTest {
     }
 
     @Test
-    public void testAddActivity() throws Exception {
+    public void testAddTypedActivity() throws Exception {
         JCRTemplate.getInstance().doExecuteWithSystemSession(romeo.getName(), new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                service.addActivity(romeo.getUserKey(), "To be, or not to be: that is the question."
-                        + " Regards. Romeo.", session);
+                service.addActivity(romeo.getUserKey(),romeo.getNode(session),"resourceBundle",session, "test.fake.rb.key");
+                session.save();
                 return Boolean.TRUE;
             }
         });
@@ -193,9 +214,42 @@ public class SocialServiceTest {
         JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
-                int count = service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null, null).size();
+                final String path = romeo.getNode(session).getPath();
+                final SortedSet<JCRNodeWrapper> activities = (SortedSet<JCRNodeWrapper>) service.getActivities(session,
+                        null, 0, 0, path);
+                int count = activities.size();
                 assertEquals("User should have only one activity", 1, count);
+                final JCRNodeWrapper activity = activities.first();
+                assertEquals("resourceBundle",activity.getProperty("j:activityType").getString());
+                assertEquals("test.fake.rb.key",activity.getProperty("j:message").getString());
+                assertEquals(path,activity.getProperty("j:targetNode").getString());
+                return Boolean.TRUE;
+            }
+        });
+    }
+
+    @Test
+    public void testAddStatusMessage() throws Exception {
+        JCRTemplate.getInstance().doExecuteWithSystemSession(romeo.getName(), new JCRCallback<Boolean>() {
+            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
+                service.addActivity(romeo.getUserKey(), "To be, or not to be: that is the question."
+                                                        + " Regards. Romeo.", session);
+                session.save();
+                return Boolean.TRUE;
+            }
+        });
+
+        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
+            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
+
+                final SortedSet<JCRNodeWrapper> activities = (SortedSet<JCRNodeWrapper>) service.getActivities(session,
+                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null);
+                int count = activities.size();
+                assertEquals("User should have only one activity", 1, count);
+                final JCRNodeWrapper activity = activities.first();
+                assertEquals("text",activity.getProperty("j:activityType").getString());
+                assertEquals("To be, or not to be: that is the question."
+                             + " Regards. Romeo.",activity.getProperty("j:message").getString());
                 return Boolean.TRUE;
             }
         });
@@ -209,6 +263,7 @@ public class SocialServiceTest {
                 public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
                     service.addActivity(romeo.getUserKey(), "[" + counter
                             + "] To be, or not to be: that is the question." + " Regards. Romeo.", session);
+                    session.save();
                     return Boolean.TRUE;
                 }
             });
@@ -218,7 +273,7 @@ public class SocialServiceTest {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 int count = service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null, null).size();
+                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null).size();
                 assertEquals("User should have " + ACTIVITY_COUNT + " one activity", ACTIVITY_COUNT, count);
                 return Boolean.TRUE;
             }
