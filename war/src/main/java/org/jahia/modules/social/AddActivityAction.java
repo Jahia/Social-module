@@ -66,14 +66,24 @@ public class AddActivityAction extends BaseSocialAction {
         JCRSessionWrapper jcrSession = JCRSessionFactory.getInstance().getCurrentUserSession(
                 resource.getWorkspace(), resource.getLocale());
 
-        final String text = req.getParameter("text");
-
-        if (text != null) {
-            socialService.addActivity(jcrSession.getUser().getUsername(), text, jcrSession);
+        if (parameters.containsKey("activityType")) {
+            if (parameters.containsKey("activityParameters")) {
+                socialService.addActivity(jcrSession.getUser().getUsername(), resource.getNode(),
+                        parameters.get("activityType").get(0), jcrSession, parameters.get("activityParameters").toArray());
+            } else {
+                socialService.addActivity(jcrSession.getUser().getUsername(), resource.getNode(),
+                        parameters.get("activityType").get(0), jcrSession);
+            }
         } else {
-            return ActionResult.BAD_REQUEST;
-        }
+            final String text = req.getParameter("text");
 
+            if (text != null) {
+                socialService.addActivity(jcrSession.getUser().getUsername(), text, jcrSession);
+            } else {
+                return ActionResult.BAD_REQUEST;
+            }
+        }
+        session.save();
         return ActionResult.OK_JSON;
     }
 
