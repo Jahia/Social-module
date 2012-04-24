@@ -28,7 +28,7 @@
  - j:body (string)
  - j:read (boolean)=false
 
-[jnt:socialActivitiesDisplay] > jnt:content, jmix:bindedComponent, jmix:userProfileComponents, jmix:studioOnly
+[jnt:socialActivitiesDisplay] > jnt:content, jmix:list, jmix:bindedComponent, jmix:userProfileComponents, jmix:studioOnly
  - j:activitiesLimit (long)
 
 
