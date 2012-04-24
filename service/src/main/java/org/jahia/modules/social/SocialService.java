@@ -248,33 +248,64 @@ public class SocialService implements BeanPostProcessor {
         return userPaths;
     }
 
-    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> usersPaths, long limit, long offset, String targetTreeRootPath) throws RepositoryException {
+    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> usersPaths,
+                                                   long limit, long offset,
+                                                   String targetTreeRootPath) throws RepositoryException {
+        return getActivities(jcrSessionWrapper, usersPaths, limit, offset, targetTreeRootPath, null);
+    }
+
+    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> usersPaths,
+                                                   long limit, long offset, String targetTreeRootPath,
+                                                   List<String> activityTypes) throws RepositoryException {
         SortedSet<JCRNodeWrapper> activitiesSet = new TreeSet<JCRNodeWrapper>(ACTIVITIES_COMPARATOR);
-        String statement;
-        if (usersPaths == null || usersPaths.isEmpty()) {
-            statement =
-                    "select * from [" + JNT_SOCIAL_ACTIVITY + "] as activity where activity.['j:targetNode'] like '" +
-                    targetTreeRootPath + "%' order by [jcr:created] desc";
-        } else {
-            StringBuilder statementBuilder = new StringBuilder().append("select * from [").append(
-                    JNT_SOCIAL_ACTIVITY).append("] as uA where ");
-            boolean addOr = false;
-            if (targetTreeRootPath != null) {
+        StringBuilder statementBuilder = new StringBuilder().append("select * from [").append(
+                JNT_SOCIAL_ACTIVITY).append("] as uA where ");
+        boolean addAnd = false;
+        if (usersPaths != null && !usersPaths.isEmpty()) {
+            int size = usersPaths.size();
+            if (size > 1) {
                 statementBuilder.append("(");
             }
-            for (String currentPath : usersPaths) {
-                if (addOr) {
+            Iterator<String> iterator = usersPaths.iterator();
+            while (iterator.hasNext()) {
+                statementBuilder.append("isdescendantnode(uA,['").append(iterator.next()).append("'])");
+                if (iterator.hasNext()) {
                     statementBuilder.append(" or ");
                 }
-                statementBuilder.append("isdescendantnode(uA,['").append(currentPath).append("'])");
-                addOr = true;
             }
-            if (targetTreeRootPath != null) {
-                statementBuilder.append(") and uA.['j:targetNode'] like '").append(targetTreeRootPath).append("%'");
+            if (size > 1) {
+                statementBuilder.append(")");
             }
-            statementBuilder.append(" order by [jcr:created] desc");
-            statement = statementBuilder.toString();
+            addAnd = true;
         }
+        if (targetTreeRootPath != null) {
+            if (addAnd) {
+                statementBuilder.append(" and ");
+            }
+            statementBuilder.append("uA.['j:targetNode'] like '").append(targetTreeRootPath).append("%'");
+            addAnd = true;
+        }
+        if (activityTypes != null && !activityTypes.isEmpty()) {
+            if (addAnd) {
+                statementBuilder.append(" and ");
+            }
+            int size = activityTypes.size();
+            if (size > 1) {
+                statementBuilder.append("(");
+            }
+            Iterator<String> iterator = activityTypes.iterator();
+            while (iterator.hasNext()) {
+                statementBuilder.append("uA.['j:activityType'] = '").append(iterator.next()).append("'");
+                if (iterator.hasNext()) {
+                    statementBuilder.append(" or ");
+                }
+            }
+            if (size > 1) {
+                statementBuilder.append(")");
+            }
+        }
+        statementBuilder.append(" order by [jcr:created] desc");
+        String statement = statementBuilder.toString();
         QueryManager queryManager = jcrSessionWrapper.getWorkspace().getQueryManager();
         Query activitiesQuery = queryManager.createQuery(statement, Query.JCR_SQL2);
         activitiesQuery.setLimit(limit);

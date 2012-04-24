@@ -77,8 +77,14 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <description>allows to specify the offset in the list of activities (NOT IMPLEMENTED YET)</description>
-            <name>limit</name>
+            <description>allows to specify the offset in the list of activities</description>
+            <name>offset</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>list of activity types (comma separated) to filter on</description>
+            <name>activityTypes</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>

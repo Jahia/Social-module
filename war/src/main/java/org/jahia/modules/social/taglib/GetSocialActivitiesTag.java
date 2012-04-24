@@ -46,10 +46,13 @@ import org.jahia.services.SpringContextSingleton;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.taglibs.jcr.AbstractJCRTag;
+import org.jahia.utils.Patterns;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -71,6 +74,7 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
     private String pathFilter = null;
     private Set<String> sourcePaths;
     private SocialService socialService;
+    private String activityTypes;
 
     public int doEndTag() throws JspException {
         try {
@@ -116,6 +120,10 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
         this.pathFilter = pathFilter;
     }
 
+    public void setActivityTypes(String activityTypes) {
+        this.activityTypes = activityTypes;
+    }
+
     private SocialService getSocialService() {
         if (socialService == null) {
             socialService = (SocialService) SpringContextSingleton.getModuleBean("socialService");
@@ -125,7 +133,11 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
 
     private SortedSet<JCRNodeWrapper> getActivities() throws RepositoryException {
         JCRSessionWrapper session = getJCRSession();
-        return getSocialService().getActivities(session, sourcePaths, limit, offset, pathFilter);
+        List<String> activityTypesList = null;
+        if (activityTypes != null && !activityTypes.isEmpty()) {
+            activityTypesList = Arrays.asList(Patterns.COMMA.split(activityTypes));
+        }
+        return getSocialService().getActivities(session, sourcePaths, limit, offset, pathFilter, activityTypesList);
     }
 
 }

@@ -9,16 +9,29 @@
 
 <jcr:nodeProperty node="${currentNode}" name="j:connectionSource" var="connectionSource"/>
 <jcr:nodeProperty node="${currentNode}" name="j:activitiesLimit" var="activitiesLimit"/>
+<jcr:nodeProperty node="${currentNode}" name="j:activityTypes" var="activityTypes"/>
+<c:forEach items="${activityTypes}" var="activityType" varStatus="status">
+    <c:choose>
+        <c:when test="${status.first}">
+            <c:set var="activityTypesStr" value="${activityType.string}" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="activityTypesStr" value="${activityTypesStr},${activityType.string}" />
+        </c:otherwise>
+    </c:choose>
+</c:forEach>
 <c:set var="bindedComponent"
        value="${uiComponents:getBindedComponent(currentNode, renderContext, 'j:bindedComponent')}"/>
 <c:if test="${not empty bindedComponent}">
     <c:choose>
         <c:when test="${jcr:isNodeType(bindedComponent, 'jnt:user')}">
             <social:get-connections var="connections" path="${bindedComponent.path}"/>
-            <social:get-activities var="currentList" sourcePaths="${connections}" limit="${activitiesLimit.long}"/>
+            <social:get-activities var="currentList" sourcePaths="${connections}" limit="${activitiesLimit.long}"
+                                   activityTypes="${activityTypesStr}" />
         </c:when>
         <c:otherwise>
-            <social:get-activities var="currentList" pathFilter="${bindedComponent.path}" limit="${activitiesLimit.long}"/>
+            <social:get-activities var="currentList" pathFilter="${bindedComponent.path}" limit="${activitiesLimit.long}"
+                                   activityTypes="${activityTypesStr}" />
         </c:otherwise>
     </c:choose>
     <c:set target="${moduleMap}" property="editable" value="false" />

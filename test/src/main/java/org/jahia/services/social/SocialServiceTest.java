@@ -194,7 +194,7 @@ public class SocialServiceTest {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 int count = service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null).size();
+                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null, null).size();
                 assertEquals("User should have only one activity", 1, count);
                 return Boolean.TRUE;
             }
@@ -218,7 +218,7 @@ public class SocialServiceTest {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 int count = service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null).size();
+                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null, null).size();
                 assertEquals("User should have " + ACTIVITY_COUNT + " one activity", ACTIVITY_COUNT, count);
                 return Boolean.TRUE;
             }
