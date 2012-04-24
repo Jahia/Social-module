@@ -8,6 +8,9 @@
 <%@ taglib prefix="uiComponents" uri="http://www.jahia.org/tags/uiComponentsLib" %>
 <template:addResources type="javascript" resources="jquery.min.js"/>
 <template:addResources type="javascript" resources="jquery.cuteTime.js"/>
+
+<template:addResources type="css" resources="social-activities-display.css"/>
+
 <script type="text/javascript">
     $(document).ready(function() {
         $('.timestamp').cuteTime({ refresh: 60000 });
