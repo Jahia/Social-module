@@ -23,17 +23,26 @@
 <c:set var="bindedComponent"
        value="${uiComponents:getBindedComponent(currentNode, renderContext, 'j:bindedComponent')}"/>
 <c:if test="${not empty bindedComponent}">
+    <c:set var="limit" value="${activitiesLimit.long}"/>
+    <c:if test="${not empty pagerLimits[currentNode.identifier] and (empty limit or pagerLimits[currentNode.identifier] < limit)}">
+        <c:set var="limit" value="${pagerLimits[currentNode.identifier]}"/>
+    </c:if>
+
     <c:choose>
         <c:when test="${jcr:isNodeType(bindedComponent, 'jnt:user')}">
             <social:get-connections var="connections" path="${bindedComponent.path}"/>
-            <social:get-activities var="currentList" sourcePaths="${connections}" limit="${activitiesLimit.long}"
+            <social:get-activities var="currentList" sourcePaths="${connections}" limit="${limit}"
                                    activityTypes="${activityTypesStr}" />
         </c:when>
         <c:otherwise>
-            <social:get-activities var="currentList" pathFilter="${bindedComponent.path}" limit="${activitiesLimit.long}"
+            <social:get-activities var="currentList" pathFilter="${bindedComponent.path}" limit="${limit}"
                                    activityTypes="${activityTypesStr}" />
         </c:otherwise>
     </c:choose>
+
+    <jsp:useBean id="pagerLimits" class="java.util.HashMap" scope="request"/>
+    <c:set target="${pagerLimits}" property="${currentNode.identifier}_loaded" value="${fn:length(currentList)}"/>
+
     <c:set target="${moduleMap}" property="editable" value="false" />
     <c:set target="${moduleMap}" property="currentList" value="${currentList}" />
     <c:set target="${moduleMap}" property="end" value="${fn:length(moduleMap.currentList)}" />
