@@ -40,6 +40,7 @@
 
 package org.jahia.modules.social.taglib;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.taglibs.standard.tag.common.core.Util;
 import org.jahia.modules.social.SocialService;
 import org.jahia.services.SpringContextSingleton;
@@ -134,7 +135,7 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
     private SortedSet<JCRNodeWrapper> getActivities() throws RepositoryException {
         JCRSessionWrapper session = getJCRSession();
         List<String> activityTypesList = null;
-        if (activityTypes != null && !activityTypes.isEmpty()) {
+        if (activityTypes != null && !StringUtils.isEmpty(activityTypes)) {
             activityTypesList = Arrays.asList(Patterns.COMMA.split(activityTypes));
         }
         return getSocialService().getActivities(session, sourcePaths, limit, offset, pathFilter, activityTypesList);
