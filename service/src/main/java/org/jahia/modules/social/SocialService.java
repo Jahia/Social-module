@@ -475,6 +475,10 @@ public class SocialService implements BeanPostProcessor {
                 });
     }
 
+    public Map<String, ActivityRecorder> getActivityRecorderMap() {
+        return activityRecorderMap;
+    }
+
     private JCRUser getJCRUserFromUserKey(String userKey) {
         JCRUser jcrUser = null;
 

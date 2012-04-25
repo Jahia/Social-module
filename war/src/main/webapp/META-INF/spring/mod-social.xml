@@ -38,7 +38,17 @@
                 <entry key="resourceBundle" value="jnt:simpleSocialActivity"/>
             </map>
         </property>
+        <property name="templatePackageName" value="Jahia Social Module"/>
+        <property name="activityTypesRB">
+            <map>
+                <entry key="text" value="label.activityTypes.text"/>
+                <entry key="resourceBundle" value="label.activityTypes.resourceBundle"/>
+            </map>
+        </property>
     </bean>
 
-
+    <bean class="org.jahia.modules.social.choicelist.ActivityTypeModuleChoiceListInitializer">
+        <property name="key" value="activityTypes"/>
+        <property name="socialService" ref="socialService"/>
+    </bean>
 </beans>

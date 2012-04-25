@@ -54,4 +54,8 @@ public interface ActivityRecorder {
     Map<String, String> getActivityTypes();
 
     String getNodeTypeForActivity(String activityType);
+
+    Map<String, String> getActivityTypesRB();
+
+    String getTemplatePackageName();
 }
