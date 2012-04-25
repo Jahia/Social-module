@@ -43,6 +43,7 @@ package org.jahia.modules.social;
 import org.drools.spi.KnowledgeHelper;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.rules.AbstractNodeFact;
 import org.jahia.services.content.rules.AddedNodeFact;
 import org.jahia.services.usermanager.JahiaUser;
 
@@ -60,7 +61,7 @@ public class SocialRuleService {
 
     /* Rules Consequence implementations */
 
-    public void addActivity(final String activityType, final String user, final AddedNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
+    public void addActivity(final String activityType, final String user, final AbstractNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
         if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
             return;
         }
@@ -74,7 +75,7 @@ public class SocialRuleService {
         drools.insert(new AddedNodeFact(n));
     }
 
-    public void sendMessage(final String fromUser, final String toUser, final String subject, final String message, AddedNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
+    public void sendMessage(final String fromUser, final String toUser, final String subject, final String message, AbstractNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
         if (fromUser == null || "".equals(fromUser.trim()) || fromUser.equals(" system ")) {
             return;
         }
