@@ -80,7 +80,8 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
         for (String activityType : recorderMap.keySet()) {
             final ActivityRecorder recorder = recorderMap.get(activityType);
             final JahiaResourceBundle bundle = new JahiaResourceBundle(null,locale, recorder.getTemplatePackageName());
-            choiceListValues.add(new ChoiceListValue(bundle.get(recorder.getActivityTypesRB().get(activityType),activityType), activityType));
+            final String activityTypeKey = recorder.getActivityTypesRB().get(activityType);
+            choiceListValues.add(new ChoiceListValue(activityTypeKey!=null?bundle.get(activityTypeKey,activityType):activityType, activityType));
         }
         return choiceListValues;
     }
