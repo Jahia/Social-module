@@ -32,17 +32,18 @@
  */
 package org.jahia.modules.social.choicelist;
 
-import org.apache.jackrabbit.value.*;
 import org.apache.log4j.Logger;
+import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.social.ActivityRecorder;
 import org.jahia.modules.social.SocialService;
+import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRPropertyWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
-import org.jahia.services.content.nodetypes.renderer.ChoiceListRenderer;
 import org.jahia.services.content.nodetypes.renderer.ModuleChoiceListRenderer;
 import org.jahia.services.render.RenderContext;
+import org.jahia.services.templates.JahiaTemplateManagerService;
 import org.jahia.utils.i18n.JahiaResourceBundle;
 
 import javax.jcr.RepositoryException;
@@ -80,7 +81,7 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
         for (String activityType : recorderMap.keySet()) {
             final ActivityRecorder recorder = recorderMap.get(activityType);
             final JahiaResourceBundle bundle = new JahiaResourceBundle(null,locale, recorder.getTemplatePackageName());
-            final String activityTypeKey = recorder.getActivityTypesRB().get(activityType);
+            final String activityTypeKey = getResourceBundleKey(recorder, activityType);
             choiceListValues.add(new ChoiceListValue(activityTypeKey!=null?bundle.get(activityTypeKey,activityType):activityType, activityType));
         }
         return choiceListValues;
@@ -96,7 +97,7 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
         final String activityType = propertyWrapper.getString();
         final ActivityRecorder recorder = socialService.getActivityRecorderMap().get(activityType);
         final JahiaResourceBundle bundle = new JahiaResourceBundle(null,context.getUILocale(), recorder.getTemplatePackageName());
-        return bundle.get(recorder.getActivityTypesRB().get(activityType), activityType);
+        return bundle.get(getResourceBundleKey(recorder, activityType), activityType);
     }
 
     public Map<String, Object> getObjectRendering(RenderContext context, ExtendedPropertyDefinition propDef,
@@ -108,7 +109,7 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
             throws RepositoryException {
         final ActivityRecorder recorder = socialService.getActivityRecorderMap().get(activityType.toString());
         final JahiaResourceBundle bundle = new JahiaResourceBundle(null,context.getUILocale(), recorder.getTemplatePackageName());
-        return bundle.get(recorder.getActivityTypesRB().get(activityType.toString()), activityType.toString());
+        return bundle.get(getResourceBundleKey(recorder, activityType.toString()), activityType.toString());
     }
 
     public Map<String, Object> getObjectRendering(Locale locale, ExtendedPropertyDefinition propDef,
@@ -116,9 +117,13 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
         final ActivityRecorder recorder = socialService.getActivityRecorderMap().get(activityType.toString());
         final JahiaResourceBundle bundle = new JahiaResourceBundle(null,locale, recorder.getTemplatePackageName());
         Map<String,Object> results = new LinkedHashMap<String, Object>();
-        results.put("displayName",bundle.get(recorder.getActivityTypesRB().get(activityType.toString()), activityType.toString()));
+        results.put("displayName",bundle.get(getResourceBundleKey(recorder, activityType.toString()), activityType.toString()));
         results.put("value",activityType.toString());
         return results;
+    }
+
+    private String getResourceBundleKey(ActivityRecorder recorder, String activityType) {
+        return "label.activityTypes." + activityType;
     }
 
     public String getStringRendering(Locale locale, ExtendedPropertyDefinition propDef, Object propertyValue)

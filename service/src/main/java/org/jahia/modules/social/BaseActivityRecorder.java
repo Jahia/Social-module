@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class BaseActivityRecorder implements ActivityRecorder {
     private Map<String,String> activityTypes;
-    private Map<String,String> activityTypesRB;
     private String templatePackageName;
 
 
@@ -28,14 +27,6 @@ public class BaseActivityRecorder implements ActivityRecorder {
 
     public void setActivityTypes(Map<String, String> types) {
         this.activityTypes = types;
-    }
-
-    public Map<String, String> getActivityTypesRB() {
-        return activityTypesRB;
-    }
-
-    public void setActivityTypesRB(Map<String, String> activityTypesRB) {
-        this.activityTypesRB = activityTypesRB;
     }
 
     public String getTemplatePackageName() {
