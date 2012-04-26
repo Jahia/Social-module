@@ -68,10 +68,10 @@ public class AddActivityAction extends BaseSocialAction {
 
         if (parameters.containsKey("activityType")) {
             if (parameters.containsKey("activityParameters")) {
-                socialService.addActivity(jcrSession.getUser().getUsername(), resource.getNode(),
+                socialService.addActivity(jcrSession.getUser().getUserKey(), resource.getNode(),
                         parameters.get("activityType").get(0), jcrSession, parameters.get("activityParameters").toArray());
             } else {
-                socialService.addActivity(jcrSession.getUser().getUsername(), resource.getNode(),
+                socialService.addActivity(jcrSession.getUser().getUserKey(), resource.getNode(),
                         parameters.get("activityType").get(0), jcrSession);
             }
         } else {
