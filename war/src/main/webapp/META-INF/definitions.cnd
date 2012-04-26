@@ -14,11 +14,11 @@
  + * (jnt:activitiesList)
  + * (jnt:socialActivity)
 
-[jnt:socialActivity] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
+[jnt:baseSocialActivity] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
  - j:activityType (string)
  - j:targetNode (string) nofulltext
 
-[jnt:simpleSocialActivity] > jnt:socialActivity
+[jnt:socialActivity] > jnt:baseSocialActivity
  - j:message (string) nofulltext
 
 [jnt:socialMessage] > jnt:content, jmix:droppableContent, jmix:autoPublish, jmix:studioOnly

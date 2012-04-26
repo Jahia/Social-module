@@ -34,8 +34,8 @@
     <bean class="org.jahia.modules.social.DefaultSocialActivityRecorder">
         <property name="activityTypes">
             <map>
-                <entry key="text" value="jnt:simpleSocialActivity"/>
-                <entry key="resourceBundle" value="jnt:simpleSocialActivity"/>
+                <entry key="text" value="jnt:socialActivity"/>
+                <entry key="resourceBundle" value="jnt:socialActivity"/>
             </map>
         </property>
         <property name="templatePackageName" value="Jahia Social Module"/>

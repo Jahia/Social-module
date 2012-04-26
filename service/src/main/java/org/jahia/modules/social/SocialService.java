@@ -73,7 +73,7 @@ import java.util.*;
 public class SocialService implements BeanPostProcessor {
 
     private static Logger logger = org.slf4j.LoggerFactory.getLogger(SocialService.class);
-    public static final String JNT_SOCIAL_ACTIVITY = "jnt:socialActivity";
+    public static final String JNT_BASE_SOCIAL_ACTIVITY = "jnt:baseSocialActivity";
     public static final String JNT_SOCIAL_MESSAGE = "jnt:socialMessage";
     public static final String JNT_SOCIAL_CONNECTION = "jnt:socialConnection";
     private static final Comparator<? super JCRNodeWrapper> ACTIVITIES_COMPARATOR = new Comparator<JCRNodeWrapper>() {
@@ -261,7 +261,7 @@ public class SocialService implements BeanPostProcessor {
                                                    List<String> activityTypes) throws RepositoryException {
         SortedSet<JCRNodeWrapper> activitiesSet = new TreeSet<JCRNodeWrapper>(ACTIVITIES_COMPARATOR);
         StringBuilder statementBuilder = new StringBuilder().append("select * from [").append(
-                JNT_SOCIAL_ACTIVITY).append("] as uA where ");
+                JNT_BASE_SOCIAL_ACTIVITY).append("] as uA where ");
         boolean addAnd = false;
         if (usersPaths != null && !usersPaths.isEmpty()) {
             int size = usersPaths.size();
@@ -539,7 +539,7 @@ public class SocialService implements BeanPostProcessor {
         this.jcrContentUtils = jcrContentUtils;
         if (jcrContentUtils.getNameGenerationHelper() != null &&
                 jcrContentUtils.getNameGenerationHelper() instanceof DefaultNameGenerationHelperImpl) {
-            ((DefaultNameGenerationHelperImpl) jcrContentUtils.getNameGenerationHelper()).getRandomizedNames().add(JNT_SOCIAL_ACTIVITY);
+            ((DefaultNameGenerationHelperImpl) jcrContentUtils.getNameGenerationHelper()).getRandomizedNames().add(JNT_BASE_SOCIAL_ACTIVITY);
         }
     }
 
