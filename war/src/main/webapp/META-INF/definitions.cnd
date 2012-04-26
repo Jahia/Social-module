@@ -12,7 +12,7 @@
 
 [jnt:activitiesList] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
  + * (jnt:activitiesList)
- + * (jnt:socialActivity)
+ + * (jnt:baseSocialActivity)
 
 [jnt:baseSocialActivity] > nt:base, jmix:nodenameInfo, jmix:observable, jmix:basemetadata
  - j:activityType (string)
