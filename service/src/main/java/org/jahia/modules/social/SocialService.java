@@ -101,15 +101,15 @@ public class SocialService implements BeanPostProcessor {
 
     private Map<String, ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
 
-    public void addActivity(final String user, final String message, JCRSessionWrapper session) throws RepositoryException {
-        addActivity(user, null, "text", session, message);
+    public void addActivity(final String userKey, final String message, JCRSessionWrapper session) throws RepositoryException {
+        addActivity(userKey, null, "text", session, message);
     }
 
-    public JCRNodeWrapper addActivity(final String user, final JCRNodeWrapper targetNode, String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
-        if (user == null || "".equals(user.trim())) {
+    public JCRNodeWrapper addActivity(final String userKey, final JCRNodeWrapper targetNode, String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
+        if (userKey == null || "".equals(userKey.trim())) {
             throw new ConstraintViolationException();
         }
-        final JCRUser fromJCRUser = getJCRUserFromUserKey(user);
+        final JCRUser fromJCRUser = getJCRUserFromUserKey(userKey);
         if (fromJCRUser == null) {
             logger.warn("No user found, not adding activity !");
             throw new ConstraintViolationException();
@@ -127,7 +127,7 @@ public class SocialService implements BeanPostProcessor {
                 activityNode.setProperty("j:targetNode", targetNode.getPath());
             }
             activityNode.setProperty("j:activityType", activityType);
-            activityRecorder.recordActivity(activityNode, activityType, user, targetNode, session, args);
+            activityRecorder.recordActivity(activityNode, activityType, userKey, targetNode, session, args);
 
             return activityNode;
         }
