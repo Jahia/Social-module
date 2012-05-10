@@ -284,7 +284,8 @@ public class SocialService implements BeanPostProcessor {
             if (addAnd) {
                 statementBuilder.append(" and ");
             }
-            statementBuilder.append("uA.['j:targetNode'] like '").append(targetTreeRootPath).append("%'");
+            statementBuilder.append("(uA.['j:targetNode'] like '").append(targetTreeRootPath)
+                    .append("' or uA.['j:targetNode'] like '").append(targetTreeRootPath).append("/%')");
             addAnd = true;
         }
         if (activityTypes != null && !activityTypes.isEmpty()) {
