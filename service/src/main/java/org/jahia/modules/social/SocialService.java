@@ -121,7 +121,7 @@ public class SocialService implements BeanPostProcessor {
         if (activityRecorderMap.containsKey(activityType)) {
             ActivityRecorder activityRecorder = activityRecorderMap.get(activityType);
             String nodeType = activityRecorder.getNodeTypeForActivity(activityType);
-            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType);
+            String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType)+"_"+((int) Math.rint(Math.random()*100000));
             JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
             if (targetNode!=null) {
                 activityNode.setProperty("j:targetNode", targetNode.getPath());
