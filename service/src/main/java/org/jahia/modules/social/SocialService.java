@@ -94,7 +94,6 @@ public class SocialService implements BeanPostProcessor {
 
     private String autoSplitSettings;
     private JCRUserManagerProvider jcrUserManager;
-    private JahiaGroupManagerService groupManagerService;
     private JahiaUserManagerService userManagerService;
     private WorkflowService workflowService;
     private JCRContentUtils jcrContentUtils;
@@ -270,7 +269,7 @@ public class SocialService implements BeanPostProcessor {
             }
             Iterator<String> iterator = usersPaths.iterator();
             while (iterator.hasNext()) {
-                statementBuilder.append("isdescendantnode(uA,['").append(iterator.next()).append("'])");
+                statementBuilder.append("isdescendantnode(uA,['").append(JCRContentUtils.sqlEncode(iterator.next())).append("'])");
                 if (iterator.hasNext()) {
                     statementBuilder.append(" or ");
                 }
@@ -281,11 +280,12 @@ public class SocialService implements BeanPostProcessor {
             addAnd = true;
         }
         if (targetTreeRootPath != null) {
+            String escapedPath = JCRContentUtils.sqlEncode(targetTreeRootPath);
             if (addAnd) {
                 statementBuilder.append(" and ");
             }
-            statementBuilder.append("(uA.['j:targetNode'] like '").append(targetTreeRootPath)
-                    .append("' or uA.['j:targetNode'] like '").append(targetTreeRootPath).append("/%')");
+            statementBuilder.append("(uA.['j:targetNode'] like '").append(escapedPath)
+                    .append("' or uA.['j:targetNode'] like '").append(escapedPath).append("/%')");
             addAnd = true;
         }
         if (activityTypes != null && !activityTypes.isEmpty()) {
@@ -517,13 +517,6 @@ public class SocialService implements BeanPostProcessor {
      */
     public void setJcrUserManager(JCRUserManagerProvider jcrUserManager) {
         this.jcrUserManager = jcrUserManager;
-    }
-
-    /**
-     * @param groupManagerService the groupManagerService to set
-     */
-    public void setGroupManagerService(JahiaGroupManagerService groupManagerService) {
-        this.groupManagerService = groupManagerService;
     }
 
     /**
