@@ -21,6 +21,8 @@
 	margin-bottom:0;
 	list-style:none;
     border-bottom:1px solid #e5e5e5;
+    clear:both;
+    overflow:hidden;
 }
 .bodywrapper .activitiesList li .activityInnerContent img{max-width:100px ;padding:3px; border:1px solid #ccc;}
 
