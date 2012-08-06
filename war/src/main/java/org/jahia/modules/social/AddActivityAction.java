@@ -63,22 +63,19 @@ public class AddActivityAction extends BaseSocialAction {
             Resource resource, JCRSessionWrapper session, Map<String, List<String>> parameters,
             URLResolver urlResolver) throws Exception {
 
-        JCRSessionWrapper jcrSession = JCRSessionFactory.getInstance().getCurrentUserSession(
-                resource.getWorkspace(), resource.getLocale());
-
         if (parameters.containsKey("activityType")) {
             if (parameters.containsKey("activityParameters")) {
-                socialService.addActivity(jcrSession.getUser().getUserKey(), resource.getNode(),
-                        parameters.get("activityType").get(0), jcrSession, parameters.get("activityParameters").toArray());
+                socialService.addActivity(session.getUser().getUserKey(), resource.getNode(),
+                        parameters.get("activityType").get(0), session, parameters.get("activityParameters").toArray());
             } else {
-                socialService.addActivity(jcrSession.getUser().getUserKey(), resource.getNode(),
-                        parameters.get("activityType").get(0), jcrSession);
+                socialService.addActivity(session.getUser().getUserKey(), resource.getNode(),
+                        parameters.get("activityType").get(0), session);
             }
         } else {
             final String text = req.getParameter("text");
 
             if (text != null) {
-                socialService.addActivity(jcrSession.getUser().getUsername(), text, jcrSession);
+                socialService.addActivity(session.getUser().getUsername(), text, session);
             } else {
                 return ActionResult.BAD_REQUEST;
             }
