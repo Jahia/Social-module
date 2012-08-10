@@ -41,9 +41,9 @@
 package org.jahia.modules.social;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.jackrabbit.util.ISO8601;
 import org.jahia.api.Constants;
 import org.jahia.services.content.*;
-import org.jahia.services.usermanager.JahiaGroupManagerService;
 import org.jahia.services.usermanager.JahiaUser;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.usermanager.jcr.JCRUser;
@@ -258,9 +258,16 @@ public class SocialService implements BeanPostProcessor {
     public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> usersPaths,
                                                    long limit, long offset, String targetTreeRootPath,
                                                    List<String> activityTypes) throws RepositoryException {
+        return getActivities(jcrSessionWrapper, usersPaths, limit, offset, targetTreeRootPath, activityTypes, 0);
+    }
+
+    public SortedSet<JCRNodeWrapper> getActivities(JCRSessionWrapper jcrSessionWrapper, Set<String> usersPaths,
+                                                   long limit, long offset, String targetTreeRootPath,
+                                                   List<String> activityTypes, long startDate) throws RepositoryException {
+        long timer = System.currentTimeMillis();
         SortedSet<JCRNodeWrapper> activitiesSet = new TreeSet<JCRNodeWrapper>(ACTIVITIES_COMPARATOR);
         StringBuilder statementBuilder = new StringBuilder().append("select * from [").append(
-                JNT_BASE_SOCIAL_ACTIVITY).append("] as uA where ");
+                JNT_BASE_SOCIAL_ACTIVITY).append("] where ");
         boolean addAnd = false;
         if (usersPaths != null && !usersPaths.isEmpty()) {
             int size = usersPaths.size();
@@ -284,8 +291,9 @@ public class SocialService implements BeanPostProcessor {
             if (addAnd) {
                 statementBuilder.append(" and ");
             }
-            statementBuilder.append("(uA.['j:targetNode'] like '").append(escapedPath)
-                    .append("' or uA.['j:targetNode'] like '").append(escapedPath).append("/%')");
+            statementBuilder.append("(['j:targetNode'] ").append(escapedPath.indexOf('%') != -1 ? "like" : "=").append(" '");
+            statementBuilder.append(escapedPath)
+                    .append("' or ['j:targetNode'] like '").append(escapedPath).append("/%')");
             addAnd = true;
         }
         if (activityTypes != null && !activityTypes.isEmpty()) {
@@ -298,7 +306,7 @@ public class SocialService implements BeanPostProcessor {
             }
             Iterator<String> iterator = activityTypes.iterator();
             while (iterator.hasNext()) {
-                statementBuilder.append("uA.['j:activityType'] = '").append(iterator.next()).append("'");
+                statementBuilder.append("['j:activityType'] = '").append(iterator.next()).append("'");
                 if (iterator.hasNext()) {
                     statementBuilder.append(" or ");
                 }
@@ -306,6 +314,13 @@ public class SocialService implements BeanPostProcessor {
             if (size > 1) {
                 statementBuilder.append(")");
             }
+        }
+        if (startDate > 0) {
+            // do filtering by date
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(startDate);
+            statementBuilder.append(" AND [jcr:created] >= '").append(ISO8601.format(c))
+                    .append("'");
         }
         statementBuilder.append(" order by [jcr:created] desc");
         String statement = statementBuilder.toString();
@@ -319,6 +334,11 @@ public class SocialService implements BeanPostProcessor {
         while (activitiesIterator.hasNext()) {
             JCRNodeWrapper activitiesNode = (JCRNodeWrapper) activitiesIterator.nextNode();
             activitiesSet.add(activitiesNode);
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} activities retrieved in {} ms with query:\n{}", new Object[] {
+                    activitiesSet.size(), System.currentTimeMillis() - timer, statement });
         }
 
         return activitiesSet;

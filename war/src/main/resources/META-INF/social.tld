@@ -88,6 +88,16 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <description>
+                the start date to filter activities on creation date (in milliseconds);
+                if empty or 0 no filtering is done and all activities are retrieved. Default value is 0.
+            </description>
+            <name>startDate</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>long</type>
+        </attribute>
     </tag>
 
 </taglib>

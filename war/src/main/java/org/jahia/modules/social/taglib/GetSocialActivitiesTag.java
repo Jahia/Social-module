@@ -76,6 +76,7 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
     private Set<String> sourcePaths;
     private SocialService socialService;
     private String activityTypes;
+    private long startDate;
 
     public int doEndTag() throws JspException {
         try {
@@ -89,11 +90,14 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
 
     @Override
     protected void resetState() {
-        scope = PageContext.PAGE_SCOPE;
-        var = null;
+        activityTypes = null;
         limit = 100;
         offset = 0;
         pathFilter = null;
+        scope = PageContext.PAGE_SCOPE;
+        sourcePaths = null;
+        startDate = 0;
+        var = null;
         super.resetState();
     }
 
@@ -138,7 +142,11 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
         if (activityTypes != null && !StringUtils.isEmpty(activityTypes)) {
             activityTypesList = Arrays.asList(Patterns.COMMA.split(activityTypes));
         }
-        return getSocialService().getActivities(session, sourcePaths, limit, offset, pathFilter, activityTypesList);
+        return getSocialService().getActivities(session, sourcePaths, limit, offset, pathFilter, activityTypesList, startDate);
+    }
+
+    public void setStartDate(long startDate) {
+        this.startDate = startDate;
     }
 
 }

@@ -35,8 +35,10 @@
                                    activityTypes="${activityTypesStr}" />
         </c:when>
         <c:otherwise>
+            <c:set var="creationDate" value="${bindedComponent.properties['jcr:created']}"/>
             <social:get-activities var="currentList" pathFilter="${bindedComponent.path}" limit="${limit}"
-                                   activityTypes="${activityTypesStr}" />
+                                   activityTypes="${activityTypesStr}"
+                                   startDate="${not empty creationDate ? creationDate.time.time : '0'}"/>
         </c:otherwise>
     </c:choose>
 
