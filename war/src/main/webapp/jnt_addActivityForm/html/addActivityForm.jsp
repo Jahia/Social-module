@@ -14,18 +14,41 @@
 <%--@elvariable id="renderContext" type="org.jahia.services.render.RenderContext"--%>
 <%--@elvariable id="currentResource" type="org.jahia.services.render.Resource"--%>
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
+<template:addResources type="css" resources="social-activities-display.css"/>
 
 <c:set var="boundComponent"
        value="${uiComponents:getBindedComponent(currentNode, renderContext, 'j:bindedComponent')}"/>
 
-<form class="new-activity-form"
-      action="<c:url value='${url.base}${boundComponent.path}.addActivity.do'/>" method="post">
-    <input type="hidden" name="jcrRedirectTo"
-           value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
-    <input type="hidden" name="activityType" value="text"/>
-    <input value="<fmt:message key="label.typeYourMessage"/>" class="activity-text" type="text" name="activityParameters"
-           onblur="if (this.value == '') {this.value = this.defaultValue;}"
-           onfocus="if (this.value == this.defaultValue) {this.value = '';}"
-            >
-    <input class="activity-submit" type="submit">
-</form>
+<c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
+<div class="new-activity-form-item">
+    <div class='image'>
+        <div class='itemImageLeft'>
+            <jcr:nodeProperty var="picture" node="${fromUser}" name="j:picture"/>
+            <c:if test="${not empty picture}">
+                <a href="<c:url value='${url.base}${fromUser.path}.html'/>"><img
+                        src="${picture.node.thumbnailUrls['avatar_120']}"
+                        alt="${userNode.properties.title.string} ${userNode.properties.firstname.string} ${userNode.properties.lastname.string}"
+                        width="64"
+                        height="64"/></a>
+            </c:if>
+            <c:if test="${empty picture}"><a href="<c:url value='${url.base}${fromUser.path}.html'/>">
+                <img alt="" src="<c:url value='${url.currentModule}/images/userBig.png'/>" alt="user"
+                     border="0"/></a></c:if>
+        </div>
+    </div>
+    <div class="new-activity-form-content">
+        <span class="new-activity-form-bubble"></span>
+        <form class="new-activity-form"
+              action="<c:url value='${url.base}${boundComponent.path}.addActivity.do'/>" method="post">
+            <input type="hidden" name="jcrRedirectTo"
+                   value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
+            <input type="hidden" name="activityType" value="text"/>
+            <textarea value="<fmt:message key="label.typeYourMessage"/>" class="activity-text" type="text" name="activityParameters"
+                   onblur="if (this.value == '') {this.value = this.defaultValue;}"
+                   onfocus="if (this.value == this.defaultValue) {this.value = '';}"
+                    ></textarea>
+            <div><input class="button activity-submit" type="submit"></div>
+        </form>
+    </div>
+<div class='clear'></div>
+</div>
