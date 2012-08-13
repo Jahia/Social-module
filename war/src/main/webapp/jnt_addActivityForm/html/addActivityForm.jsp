@@ -19,7 +19,7 @@
 <c:set var="boundComponent"
        value="${uiComponents:getBindedComponent(currentNode, renderContext, 'j:bindedComponent')}"/>
 
-<c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
+<jcr:node var="fromUser" path="${renderContext.user.localPath}"/>
 <div class="new-activity-form-item">
     <div class='image'>
         <div class='itemImageLeft'>
@@ -27,7 +27,7 @@
             <c:if test="${not empty picture}">
                 <a href="<c:url value='${url.base}${fromUser.path}.html'/>"><img
                         src="${picture.node.thumbnailUrls['avatar_120']}"
-                        alt="${userNode.properties.title.string} ${userNode.properties.firstname.string} ${userNode.properties.lastname.string}"
+                        alt="${fromUser.properties.title.string} ${fromUser.properties.firstname.string} ${fromUser.properties.lastname.string}"
                         width="64"
                         height="64"/></a>
             </c:if>
