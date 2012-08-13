@@ -23,6 +23,9 @@
     <input type="hidden" name="jcrRedirectTo"
            value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
     <input type="hidden" name="activityType" value="text"/>
-    <input value="<fmt:message key="label.typeYourMessage"/>" class="activity-text" type="text" name="activityParameters">
+    <input value="<fmt:message key="label.typeYourMessage"/>" class="activity-text" type="text" name="activityParameters"
+           onblur="if (this.value == '') {this.value = this.defaultValue;}"
+           onfocus="if (this.value == this.defaultValue) {this.value = '';}"
+            >
     <input class="activity-submit" type="submit">
 </form>
