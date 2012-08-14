@@ -43,10 +43,10 @@
             <input type="hidden" name="jcrRedirectTo"
                    value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
             <input type="hidden" name="activityType" value="text"/>
-            <textarea value="<fmt:message key="label.typeYourMessage"/>" class="activity-text" type="text" name="activityParameters"
-                   onblur="if (this.value == '') {this.value = this.defaultValue;}"
-                   onfocus="if (this.value == this.defaultValue) {this.value = '';}"
-                    ></textarea>
+            <textarea class="activity-text" type="text" name="activityParameters"
+                        onFocus="if(this.value==this.defaultValue)value=''" onBlur="if(this.value=='')value=this.defaultValue;"
+            ><fmt:message key="label.typeYourMessage"/></textarea>
+
             <div><input class="button activity-submit" type="submit"></div>
         </form>
     </div>
