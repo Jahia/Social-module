@@ -50,11 +50,8 @@ import javax.jcr.RepositoryException;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- *
- * @author : rincevent
- * @since : JAHIA 6.1
- *        Created : 25/04/12
+ * @author rincevent
+ * Created : 25/04/12
  */
 public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceListInitializer,ModuleChoiceListRenderer {
     private transient static Logger logger = Logger.getLogger(ActivityTypeModuleChoiceListInitializer.class);

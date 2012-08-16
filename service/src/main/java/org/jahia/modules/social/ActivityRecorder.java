@@ -40,11 +40,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
- *
- * @author : rincevent
- * @since : JAHIA 6.1
- *        Created : 19/04/12
+ * @author rincevent
+ * Created : 19/04/12
  */
 public interface ActivityRecorder {
 
