@@ -6,7 +6,7 @@
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
 <%@ taglib prefix="user" uri="http://www.jahia.org/tags/user" %>
 
-<c:set var="fromUser" value="${jcr:getParentOfType(currentNode,'jnt:user')}"/>
+<c:set var="fromUser" value="${currentNode.properties['j:from'].node}"/>
 <ul class="messageActionList">
    <li><a class="messageActionDelete" title="<fmt:message key='deleteMessage'/>" href="#delete" info="${currentNode.identifier}"><span><fmt:message
         key="deleteMessage"/></span></a></li>
@@ -19,7 +19,7 @@
 			<c:if test="${not empty picture}">
 	            <a href="<c:url value='${url.base}${fromUser.path}.html'/>"><img
 	                    src="${picture.node.thumbnailUrls['avatar_120']}"
-	                    alt="${userNode.properties.title.string} ${userNode.properties.firstname.string} ${userNode.properties.lastname.string}"
+	                    alt="${fromUser.properties.title.string} ${fromUser.properties.firstname.string} ${fromUser.properties.lastname.string}"
 	                    width="64"
 	                    height="64"/></a>
 	        </c:if>

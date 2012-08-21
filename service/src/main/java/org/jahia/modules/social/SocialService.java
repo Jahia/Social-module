@@ -199,7 +199,7 @@ public class SocialService implements BeanPostProcessor {
                 fromUser.getName() + "_to_" + toUser.getName());
         JCRNodeWrapper destinationMessageNode = destinationInboxNode.addNode(destinationInboxNodeName,
                 JNT_SOCIAL_MESSAGE);
-//        destinationMessageNode.setProperty("j:from", fromUser);
+        destinationMessageNode.setProperty("j:from", fromUser);
         destinationMessageNode.setProperty("j:to", toUser);
         destinationMessageNode.setProperty("j:subject", subject);
         destinationMessageNode.setProperty("j:body", body);
@@ -210,7 +210,7 @@ public class SocialService implements BeanPostProcessor {
         String sentMessagesBoxNodeName = JCRContentUtils.findAvailableNodeName(sentMessagesBoxNode, fromUser.getName()
                 + "_to_" + toUser.getName());
         JCRNodeWrapper sentMessageNode = sentMessagesBoxNode.addNode(sentMessagesBoxNodeName, JNT_SOCIAL_MESSAGE);
-//        sentMessageNode.setProperty("j:from", fromUser);
+        sentMessageNode.setProperty("j:from", fromUser);
         sentMessageNode.setProperty("j:to", toUser);
         sentMessageNode.setProperty("j:subject", subject);
         sentMessageNode.setProperty("j:body", body);
@@ -276,7 +276,7 @@ public class SocialService implements BeanPostProcessor {
             }
             Iterator<String> iterator = usersPaths.iterator();
             while (iterator.hasNext()) {
-                statementBuilder.append("isdescendantnode(uA,['").append(JCRContentUtils.sqlEncode(iterator.next())).append("'])");
+                statementBuilder.append("isdescendantnode(['").append(JCRContentUtils.sqlEncode(iterator.next())).append("'])");
                 if (iterator.hasNext()) {
                     statementBuilder.append(" or ");
                 }
@@ -486,7 +486,7 @@ public class SocialService implements BeanPostProcessor {
         values.add(new WorkflowVariable(from.getUsername(), 1));
         args.put("jcr:title", values);
 
-        JCRTemplate.getInstance().doExecuteWithSystemSession(from.getUsername(), null, Locale.ENGLISH,
+        JCRTemplate.getInstance().doExecuteWithSystemSession(from.getUsername(), Constants.LIVE_WORKSPACE, Locale.ENGLISH,
                 new JCRCallback<Boolean>() {
                     public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
                         workflowService.startProcess(Arrays.asList(from.getNode(session).getIdentifier()), session,
