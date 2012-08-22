@@ -267,7 +267,7 @@ public class SocialService implements BeanPostProcessor {
         long timer = System.currentTimeMillis();
         SortedSet<JCRNodeWrapper> activitiesSet = new TreeSet<JCRNodeWrapper>(ACTIVITIES_COMPARATOR);
         StringBuilder statementBuilder = new StringBuilder().append("select * from [").append(
-                JNT_BASE_SOCIAL_ACTIVITY).append("] where ");
+                JNT_BASE_SOCIAL_ACTIVITY).append("] as uA where ");
         boolean addAnd = false;
         if (usersPaths != null && !usersPaths.isEmpty()) {
             int size = usersPaths.size();
