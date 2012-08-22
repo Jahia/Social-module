@@ -49,6 +49,7 @@ import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.usermanager.jcr.JCRUser;
 import org.jahia.services.usermanager.jcr.JCRUserManagerProvider;
 import org.jahia.services.workflow.WorkflowService;
+import org.jahia.services.workflow.WorkflowTask;
 import org.jahia.services.workflow.WorkflowVariable;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
@@ -474,6 +475,11 @@ public class SocialService implements BeanPostProcessor {
         final JCRUser from = getJCRUserFromUserKey(fromUserKey);
         if (from == null) {
             throw new IllegalArgumentException("Cannot find user with key " + fromUserKey);
+        }
+
+        final JahiaUser to = userManagerService.lookupUserByKey(toUserKey);
+        if (to == null) {
+            throw new IllegalArgumentException("Cannot find user with key " + toUserKey);
         }
 
         final Map<String, Object> args = new HashMap<String, Object>();
