@@ -46,7 +46,7 @@
         <version>6.6.1.0</version>
     </parent>
     <artifactId>social-parent</artifactId>
-    <version>1.3</version>
+    <version>1.4-SNAPSHOT</version>
     <name>Jahia Social Parent</name>
     <packaging>pom</packaging>
 
