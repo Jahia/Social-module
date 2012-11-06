@@ -32,18 +32,14 @@
  */
 package org.jahia.modules.social.choicelist;
 
-import org.apache.log4j.Logger;
-import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.social.ActivityRecorder;
 import org.jahia.modules.social.SocialService;
-import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRPropertyWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
 import org.jahia.services.content.nodetypes.renderer.ModuleChoiceListRenderer;
 import org.jahia.services.render.RenderContext;
-import org.jahia.services.templates.JahiaTemplateManagerService;
 import org.jahia.utils.i18n.JahiaResourceBundle;
 
 import javax.jcr.RepositoryException;
@@ -54,7 +50,6 @@ import java.util.*;
  * Created : 25/04/12
  */
 public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceListInitializer,ModuleChoiceListRenderer {
-    private transient static Logger logger = Logger.getLogger(ActivityTypeModuleChoiceListInitializer.class);
     private String key;
     private SocialService socialService;
 

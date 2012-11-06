@@ -46,7 +46,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jahia.bin.ActionResult;
-import org.jahia.services.content.JCRSessionFactory;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;

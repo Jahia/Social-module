@@ -49,9 +49,9 @@ import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.usermanager.jcr.JCRUser;
 import org.jahia.services.usermanager.jcr.JCRUserManagerProvider;
 import org.jahia.services.workflow.WorkflowService;
-import org.jahia.services.workflow.WorkflowTask;
 import org.jahia.services.workflow.WorkflowVariable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
@@ -73,7 +73,7 @@ import java.util.*;
  */
 public class SocialService implements BeanPostProcessor {
 
-    private static Logger logger = org.slf4j.LoggerFactory.getLogger(SocialService.class);
+    private static Logger logger = LoggerFactory.getLogger(SocialService.class);
     public static final String JNT_BASE_SOCIAL_ACTIVITY = "jnt:baseSocialActivity";
     public static final String JNT_SOCIAL_MESSAGE = "jnt:socialMessage";
     public static final String JNT_SOCIAL_CONNECTION = "jnt:socialConnection";
