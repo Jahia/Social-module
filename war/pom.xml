@@ -45,7 +45,6 @@
         <groupId>org.jahia.modules</groupId>
         <version>1.4-SNAPSHOT</version>
     </parent>
-    <groupId>org.jahia.modules</groupId>
     <artifactId>social</artifactId>
     <name>Jahia Social Module</name>
     <packaging>war</packaging>
@@ -78,7 +77,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>${war.plugin.version}</version>
                 <configuration>
                     <warSourceExcludes>resources/*.properties</warSourceExcludes>
                     <webResources>
