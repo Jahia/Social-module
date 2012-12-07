@@ -148,7 +148,6 @@ public class SocialService implements BeanPostProcessor {
         } catch (PathNotFoundException pnfe) {
             session.checkout(userNode);
             activitiesNode = userNode.addNode("activities", "jnt:activitiesList");
-            activitiesNode.addMixin(JMIX_AUTOPUBLISH);
             if (autoSplitSettings != null) {
                 activitiesNode.addMixin(Constants.JAHIAMIX_AUTOSPLITFOLDERS);
                 activitiesNode.setProperty(Constants.SPLIT_CONFIG, autoSplitSettings);
