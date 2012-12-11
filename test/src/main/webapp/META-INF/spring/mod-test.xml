@@ -4,12 +4,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean class="org.jahia.bin.TestBean">
+    <bean class="org.jahia.test.bin.TestBean">
         <property name="priority" value="50"/>
 
         <property name="testCases">
             <list>
-               <value>org.jahia.services.social.SocialServiceTest</value>
+               <value>org.jahia.test.services.social.SocialServiceTest</value>
             </list>
         </property>
     </bean>

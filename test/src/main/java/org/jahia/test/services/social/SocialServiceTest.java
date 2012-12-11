@@ -38,7 +38,7 @@
  * please contact the sales department at sales@jahia.com.
  */
 
-package org.jahia.services.social;
+package org.jahia.test.services.social;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
