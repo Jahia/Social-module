@@ -43,7 +43,7 @@
     <parent>
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>1.4-SNAPSHOT</version>
+        <version>1.4</version>
     </parent>
     <artifactId>social</artifactId>
     <name>Jahia Social Module</name>
@@ -67,7 +67,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>social-service</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4</version>
         </dependency>
 
     </dependencies>
