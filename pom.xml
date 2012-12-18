@@ -47,7 +47,7 @@
         <relativePath />
     </parent>
     <artifactId>social-parent</artifactId>
-    <version>1.4</version>
+    <version>1.5-SNAPSHOT</version>
     <name>Jahia Social Parent</name>
     <packaging>pom</packaging>
 
