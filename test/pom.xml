@@ -44,7 +44,7 @@
     <parent>
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>1.5-SNAPSHOT</version>
+        <version>1.4</version>
     </parent>
     <artifactId>jahia-social-test-module</artifactId>
     <groupId>org.jahia.test</groupId>
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>social-service</artifactId>
-            <version>1.5-SNAPSHOT</version>
+            <version>1.4</version>
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
