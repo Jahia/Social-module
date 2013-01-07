@@ -47,7 +47,7 @@
                         onFocus="if(this.value==this.defaultValue)value=''" onBlur="if(this.value=='')value=this.defaultValue;"
             ><fmt:message key="label.typeYourMessage"/></textarea>
 
-            <div><input class="button activity-submit" type="submit"></div>
+            <div><input class="button activity-submit" type="submit" value="<fmt:message key="statusUpdateSubmit"></div>
         </form>
     </div>
 <div class='clear'></div>
