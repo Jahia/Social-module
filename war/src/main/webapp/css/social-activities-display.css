@@ -1,21 +1,21 @@
 /******************************************************************************
 *  docspace icon
 ******************************************************************************/
-.bodywrapper .activityInnerContent {
+ .activityInnerContent {
 	display: table-cell;
 }
 /******************************************************************************
 *  activitiesList
 ******************************************************************************/
 
-.bodywrapper ul.activitiesList  {
+ ul.activitiesList  {
 	position:relative;
 	margin:0;
 	list-style:none;
 	padding:0;
     margin-bottom:1em;
 }
-.bodywrapper .activitiesList li {
+ .activitiesList li {
 	padding:10px;
 	margin:0;
 	margin-bottom:0;
@@ -24,70 +24,70 @@
     clear:both;
     overflow:hidden;
 }
-.bodywrapper .activitiesList li .activityInnerContent img{max-width:100px ;padding:3px; border:1px solid #ccc;}
+ .activitiesList li .activityInnerContent img{max-width:100px ;padding:3px; border:1px solid #ccc;}
 
-.bodywrapper .activitiesList li:last-child {
+ .activitiesList li:last-child {
 
 }
-.bodywrapper .activitiesList .itemImageLeft {
+ .activitiesList .itemImageLeft {
 	margin-right:20px
 }
-.bodywrapper .activitiesList .itemImageRight {
+ .activitiesList .itemImageRight {
 	margin-left:20px
 }
 
-.bodywrapper .activitiesList li p {
+ .activitiesList li p {
 	padding:0;
     margin:0;
 }
-.bodywrapper .activitiesList li.last {
+ .activitiesList li.last {
 	background:none;
 }
 
-.bodywrapper .activitiesList .timestamp {
+ .activitiesList .timestamp {
 	font-size:0.8em;
 	font-weight:normal;
 	line-height:1.2em;
     margin-left:0.2em;
     display:block;
 }
-.bodywrapper .activitiesList .author {
+ .activitiesList .author {
 	display:inline;
 	margin:0;
 	padding:0;
 	font-weight:bold;
 }
-.bodywrapper .activitiesList .message {
+ .activitiesList .message {
 	display:inline;
 	margin:0;
 	padding:0;
     margin-left:0.2em;
 }
-.bodywrapper .activitiesList .message2 {
+ .activitiesList .message2 {
 	margin:0;
 	padding:0;
 }
 /******************************************************************************
 *  new-activity-form
 ******************************************************************************/
-.bodywrapper .new-activity-form-item {
+ .new-activity-form-item {
     padding: 10px;
     background-color:#f5f5f5;
 }
-.bodywrapper .new-activity-form textarea.activity-text{
+ .new-activity-form textarea.activity-text{
     margin-bottom: 0.5em;
     width:98%;
     border:1px solid #0099ff;
     background-color:#fff;
 }
-.bodywrapper .new-activity-form input.activity-submit{
+ .new-activity-form input.activity-submit{
 
 }
-.bodywrapper .new-activity-form-content {
+ .new-activity-form-content {
     margin-left: 85px;
     position:relative;
 }
-.bodywrapper .new-activity-form-bubble {
+ .new-activity-form-bubble {
     width:20px;
     height:20px;
     position:absolute;

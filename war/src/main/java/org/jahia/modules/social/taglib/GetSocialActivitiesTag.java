@@ -131,7 +131,7 @@ public class GetSocialActivitiesTag extends AbstractJCRTag {
 
     private SocialService getSocialService() {
         if (socialService == null) {
-            socialService = (SocialService) SpringContextSingleton.getModuleBean("socialService");
+            socialService = (SocialService) SpringContextSingleton.getBeanInModulesContext("socialService");
         }
         return socialService;
     }
