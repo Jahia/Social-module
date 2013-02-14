@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    xmlns:osgi="http://www.eclipse.org/gemini/blueprint/schema/blueprint"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.eclipse.org/gemini/blueprint/schema/blueprint http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
 
     <bean id="socialService" class="org.jahia.modules.social.SocialService">
         <!-- enable auto-splitting of user activities by year and month -->
@@ -44,4 +46,6 @@
         <property name="key" value="activityTypes"/>
         <property name="socialService" ref="socialService"/>
     </bean>
+    
+    <osgi:service id="socialServiceOsgi" ref="socialService" interface="org.jahia.modules.social.SocialService"/>
 </beans>
