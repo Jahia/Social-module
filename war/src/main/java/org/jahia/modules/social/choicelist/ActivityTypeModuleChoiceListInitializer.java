@@ -32,8 +32,8 @@
  */
 package org.jahia.modules.social.choicelist;
 
-import org.jahia.modules.social.ActivityRecorder;
-import org.jahia.modules.social.SocialService;
+import org.jahia.modules.sociallib.ActivityRecorder;
+import org.jahia.modules.sociallib.SocialService;
 import org.jahia.services.content.JCRPropertyWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;

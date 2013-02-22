@@ -38,7 +38,7 @@
  * please contact the sales department at sales@jahia.com.
  */
 
-package org.jahia.modules.social;
+package org.jahia.modules.sociallib;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.util.ISO8601;

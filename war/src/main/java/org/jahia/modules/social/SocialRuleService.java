@@ -41,6 +41,7 @@
 package org.jahia.modules.social;
 
 import org.drools.spi.KnowledgeHelper;
+import org.jahia.modules.sociallib.SocialService;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.rules.AbstractNodeFact;

@@ -38,42 +38,51 @@
  * please contact the sales department at sales@jahia.com.
  */
 
-package org.jahia.modules.social.taglib;
+package org.jahia.modules.sociallib.taglib;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.taglibs.standard.tag.common.core.Util;
-import org.jahia.modules.social.SocialService;
+import org.jahia.modules.sociallib.SocialService;
 import org.jahia.services.SpringContextSingleton;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.taglibs.jcr.AbstractJCRTag;
+import org.jahia.utils.Patterns;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
- * A tag that retrieves the list of paths corresponding to the user's connections.
+ * TODO Comment me
  *
  * @author loom
  *         Date: Jul 1, 2010
- *         Time: 1:56:19 PM
+ *         Time: 1:56:41 PM
  */
-public class GetSocialConnectionsTag extends AbstractJCRTag {
+public class GetSocialActivitiesTag extends AbstractJCRTag {
 
-    private static final long serialVersionUID = -2967779565265433297L;
+    private static final long serialVersionUID = 815042079517998908L;
     
     private int scope = PageContext.PAGE_SCOPE;
     private String var;
-    private String path;
-    private boolean includeSelf = true;
-    private long limit;
-    private long offset;
+    private long limit = 100;
+    private long offset = 0;
+    private String pathFilter = null;
+    private Set<String> sourcePaths;
     private SocialService socialService;
+    private String activityTypes;
+    private long startDate;
 
     public int doEndTag() throws JspException {
         try {
-            pageContext.setAttribute(var, getConnections(), scope);
+            pageContext.setAttribute(var, getActivities(), scope);
         } catch (RepositoryException e) {
-            throw new JspException("Error while retrieving the "+path+" connections!", e);
+            throw new JspException("Error while retrieving the activities!", e);
         }
         resetState();
         return EVAL_PAGE;
@@ -81,12 +90,14 @@ public class GetSocialConnectionsTag extends AbstractJCRTag {
 
     @Override
     protected void resetState() {
-        scope = PageContext.PAGE_SCOPE;
-        var = null;
-        path = null;
-        includeSelf = true;
-        limit = 0;
+        activityTypes = null;
+        limit = 100;
         offset = 0;
+        pathFilter = null;
+        scope = PageContext.PAGE_SCOPE;
+        sourcePaths = null;
+        startDate = 0;
+        var = null;
         super.resetState();
     }
 
@@ -106,12 +117,16 @@ public class GetSocialConnectionsTag extends AbstractJCRTag {
         this.offset = offset;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setSourcePaths(Set<String> sourcePaths) {
+        this.sourcePaths = sourcePaths;
     }
 
-    public void setIncludeSelf(boolean includeSelf) {
-        this.includeSelf = includeSelf;
+    public void setPathFilter(String pathFilter) {
+        this.pathFilter = pathFilter;
+    }
+
+    public void setActivityTypes(String activityTypes) {
+        this.activityTypes = activityTypes;
     }
 
     private SocialService getSocialService() {
@@ -121,7 +136,17 @@ public class GetSocialConnectionsTag extends AbstractJCRTag {
         return socialService;
     }
 
-    private Set<String> getConnections() throws RepositoryException {
-        return getSocialService().getUserConnections(path, includeSelf);
+    private SortedSet<JCRNodeWrapper> getActivities() throws RepositoryException {
+        JCRSessionWrapper session = getJCRSession();
+        List<String> activityTypesList = null;
+        if (activityTypes != null && !StringUtils.isEmpty(activityTypes)) {
+            activityTypesList = Arrays.asList(Patterns.COMMA.split(activityTypes));
+        }
+        return getSocialService().getActivities(session, sourcePaths, limit, offset, pathFilter, activityTypesList, startDate);
     }
+
+    public void setStartDate(long startDate) {
+        this.startDate = startDate;
+    }
+
 }

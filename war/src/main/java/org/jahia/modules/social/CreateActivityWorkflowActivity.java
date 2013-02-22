@@ -1,5 +1,6 @@
 package org.jahia.modules.social;
 
+import org.jahia.modules.sociallib.SocialService;
 import org.jahia.services.SpringContextSingleton;
 import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRNodeWrapper;

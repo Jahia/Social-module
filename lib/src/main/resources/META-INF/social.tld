@@ -13,7 +13,7 @@
     <tag>
         <description>Retrieve the social connections for the specified user node.</description>
         <name>get-connections</name>
-        <tag-class>org.jahia.modules.social.taglib.GetSocialConnectionsTag</tag-class>
+        <tag-class>org.jahia.modules.sociallib.taglib.GetSocialConnectionsTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <description>the name of the exposed bean will received a Set&lt;String&gt; of paths that point to the user's connection</description>
@@ -44,7 +44,7 @@
     <tag>
         <description>Retrieves the list of activities in the specified source paths and aggregate them by date.</description>
         <name>get-activities</name>
-        <tag-class>org.jahia.modules.social.taglib.GetSocialActivitiesTag</tag-class>
+        <tag-class>org.jahia.modules.sociallib.taglib.GetSocialActivitiesTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <description>the name of the exposed bean will received a List&lt;Node&gt; of nodes that contain activities</description>

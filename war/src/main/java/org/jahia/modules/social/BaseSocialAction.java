@@ -41,6 +41,7 @@
 package org.jahia.modules.social;
 
 import org.jahia.bin.Action;
+import org.jahia.modules.sociallib.SocialService;
 
 /**
  * Base class for social actions.
