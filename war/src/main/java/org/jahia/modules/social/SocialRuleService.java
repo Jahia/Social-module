@@ -40,7 +40,7 @@
 
 package org.jahia.modules.social;
 
-import org.drools.spi.KnowledgeHelper;
+import org.drools.core.spi.KnowledgeHelper;
 import org.jahia.modules.sociallib.SocialService;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRNodeWrapper;
@@ -57,13 +57,13 @@ import javax.jcr.RepositoryException;
  * @author Serge Huber
  */
 public class SocialRuleService {
-    
+
     private SocialService socialService;
 
     /* Rules Consequence implementations */
 
     public void addActivityWithParameter(final String activityType, final String user, final AbstractNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
-        addActivityWithParametersArray(activityType, user, nodeFact, new Object[] {param}, drools);
+        addActivityWithParametersArray(activityType, user, nodeFact, new Object[]{param}, drools);
     }
 
     public void addActivityWithParametersArray(final String activityType, final String user, final AbstractNodeFact nodeFact, Object[] params, KnowledgeHelper drools) throws RepositoryException {
