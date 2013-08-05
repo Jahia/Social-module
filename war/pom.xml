@@ -80,7 +80,7 @@
                 <configuration>
                     <instructions>
                         <Jahia-Depends>search,profile</Jahia-Depends>
-                        <Import-Package>*,org.jahia.modules.sociallib.taglib,${jahia.modules.importPackage}</Import-Package>
+                        <Import-Package>org.jahia.modules.sociallib.taglib,${jahia.modules.importPackage},*</Import-Package>
                         <Export-Package>{local-packages}</Export-Package>
                     </instructions>
                 </configuration>
