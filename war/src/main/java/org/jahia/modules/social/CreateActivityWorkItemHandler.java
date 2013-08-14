@@ -6,13 +6,14 @@ import org.jahia.services.content.JCRCallback;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
+import org.jahia.services.workflow.jbpm.custom.AbstractWorkItemHandler;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 
 import javax.jcr.RepositoryException;
 
-public class CreateActivityWorkItemHandler implements WorkItemHandler {
+public class CreateActivityWorkItemHandler extends AbstractWorkItemHandler implements WorkItemHandler {
     private static final long serialVersionUID = 1L;
     private String activityType;
 
