@@ -44,6 +44,7 @@
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
         <version>2.0.0-SNAPSHOT</version>
+		<relativePath/>
     </parent>
     <artifactId>social</artifactId>
     <name>Jahia Social Module</name>
@@ -80,7 +81,7 @@
                 <configuration>
                     <instructions>
                         <Jahia-Depends>search,profile</Jahia-Depends>
-                        <Import-Package>org.jahia.modules.sociallib.taglib,${jahia.modules.importPackage},*</Import-Package>
+                        <Import-Package>org.jahia.modules.sociallib.taglib,${jahia.plugin.projectPackageImport},*</Import-Package>
                         <Export-Package>{local-packages}</Export-Package>
                     </instructions>
                 </configuration>
