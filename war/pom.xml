@@ -44,7 +44,6 @@
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
         <version>2.0.0-SNAPSHOT</version>
-		<relativePath/>
     </parent>
     <artifactId>social</artifactId>
     <name>Jahia Social Module</name>
