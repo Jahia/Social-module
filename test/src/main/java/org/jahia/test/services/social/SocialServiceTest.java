@@ -44,8 +44,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.*;
-
 import javax.jcr.RepositoryException;
 
 import org.jahia.modules.social.SocialService;
@@ -128,7 +126,7 @@ public class SocialServiceTest {
         List<WorkflowTask> tasks = workflowService.getTasksForUser(user, Locale.ENGLISH);
         for (WorkflowTask task : tasks) {
             try {
-                workflowService.completeTask(task.getId(),task.getProvider(),task.getOutcomes().iterator().next(),
+                workflowService.completeTask(task.getId(), user, task.getProvider(),task.getOutcomes().iterator().next(),
                         new HashMap<String, Object>());
             } catch (Exception e) {
                 try {
@@ -162,7 +160,7 @@ public class SocialServiceTest {
 
         WorkflowTask task = tasks.get(0);
         // reject the connection
-        workflowService.completeTask(task.getId(), task.getProvider(), doAccept ? "accept" : "reject",
+        workflowService.completeTask(task.getId(), user, task.getProvider(), doAccept ? "accept" : "reject",
                 new HashMap<String, Object>());
 
         tasks = workflowService.getTasksForUser(to, Locale.ENGLISH);
