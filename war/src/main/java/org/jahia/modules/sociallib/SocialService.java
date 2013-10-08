@@ -615,4 +615,6 @@ public class SocialService implements BeanPostProcessor {
     private boolean execute(JCRCallback<Boolean> jcrCallback) throws RepositoryException {
         return JCRTemplate.getInstance().doExecuteWithSystemSession(jcrCallback);
     }
+
+
 }

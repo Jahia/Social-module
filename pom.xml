@@ -91,7 +91,6 @@
     </pluginRepositories>
 
     <modules>
-        <module>lib</module>
         <module>war</module>
 <!--        <module>test</module>-->
     </modules>
