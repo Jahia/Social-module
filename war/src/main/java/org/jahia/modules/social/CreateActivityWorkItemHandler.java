@@ -15,27 +15,6 @@ import javax.jcr.RepositoryException;
 
 public class CreateActivityWorkItemHandler extends AbstractWorkItemHandler implements WorkItemHandler {
     private static final long serialVersionUID = 1L;
-    private String activityType;
-
-    private String parameter1;
-    private String parameter2;
-    private String parameter3;
-
-    public void setActivityType(String activityType) {
-        this.activityType = activityType;
-    }
-
-    public void setParameter1(String parameter1) {
-        this.parameter1 = parameter1;
-    }
-
-    public void setParameter2(String parameter2) {
-        this.parameter2 = parameter2;
-    }
-
-    public void setParameter3(String parameter3) {
-        this.parameter3 = parameter3;
-    }
 
     @Override
     public void executeWorkItem(final WorkItem workItem, WorkItemManager manager) {
@@ -48,6 +27,10 @@ public class CreateActivityWorkItemHandler extends AbstractWorkItemHandler imple
                     if (currentUser == null) {
                         currentUser = (String) workItem.getParameter("user");
                     }
+                    String activityType = (String) workItem.getParameter("activityType");
+                    String parameter1 = (String) workItem.getParameter("parameter1");
+                    String parameter2 = (String) workItem.getParameter("parameter2");
+                    String parameter3 = (String) workItem.getParameter("parameter3");
 
                     JCRNodeWrapper node = session.getNodeByIdentifier(uuid);
                     socialService.addActivity(currentUser, node, activityType, session, parameter1, parameter2, parameter3);
