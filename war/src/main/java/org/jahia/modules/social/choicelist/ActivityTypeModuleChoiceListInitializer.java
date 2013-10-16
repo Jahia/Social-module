@@ -32,15 +32,19 @@
  */
 package org.jahia.modules.social.choicelist;
 
+import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.sociallib.ActivityRecorder;
 import org.jahia.modules.sociallib.SocialService;
+import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRPropertyWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
 import org.jahia.services.content.nodetypes.renderer.ModuleChoiceListRenderer;
 import org.jahia.services.render.RenderContext;
-import org.jahia.utils.i18n.JahiaResourceBundle;
+import org.jahia.utils.i18n.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import java.util.*;
@@ -50,6 +54,8 @@ import java.util.*;
  * Created : 25/04/12
  */
 public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceListInitializer,ModuleChoiceListRenderer {
+    private static Logger logger = LoggerFactory.getLogger(ActivityTypeModuleChoiceListInitializer.class);
+
     private String key;
     private SocialService socialService;
 
@@ -72,9 +78,13 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
         final Map<String,ActivityRecorder> recorderMap = socialService.getActivityRecorderMap();
         for (String activityType : recorderMap.keySet()) {
             final ActivityRecorder recorder = recorderMap.get(activityType);
-            final JahiaResourceBundle bundle = new JahiaResourceBundle(null,locale, recorder.getTemplatePackageName());
-            final String activityTypeKey = getResourceBundleKey(recorder, activityType);
-            choiceListValues.add(new ChoiceListValue(activityTypeKey!=null?bundle.get(activityTypeKey,activityType):activityType, activityType));
+
+            final String activityTypeKey = getResourceBundleKey(activityType);
+            JahiaTemplatesPackage pack = ServicesRegistry.getInstance().getJahiaTemplateManagerService().getTemplatePackage(recorder.getTemplatePackageName());
+            if (pack == null) {
+                logger.warn("Unable to to find " + recorder.getTemplatePackageName() + " bundle in registry when trying to display social activity");
+            }
+            choiceListValues.add(new ChoiceListValue(activityTypeKey!=null && pack != null? Messages.get(pack, activityTypeKey, locale):activityType, activityType));
         }
         return choiceListValues;
     }
@@ -88,8 +98,8 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
             throws RepositoryException {
         final String activityType = propertyWrapper.getString();
         final ActivityRecorder recorder = socialService.getActivityRecorderMap().get(activityType);
-        final JahiaResourceBundle bundle = new JahiaResourceBundle(null,context.getUILocale(), recorder.getTemplatePackageName());
-        return bundle.get(getResourceBundleKey(recorder, activityType), activityType);
+        JahiaTemplatesPackage pack = ServicesRegistry.getInstance().getJahiaTemplateManagerService().getTemplatePackage(recorder.getTemplatePackageName());
+        return Messages.get(pack, activityType, context.getUILocale());
     }
 
     public Map<String, Object> getObjectRendering(RenderContext context, ExtendedPropertyDefinition propDef,
@@ -100,21 +110,21 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
     public String getStringRendering(RenderContext context, ExtendedPropertyDefinition propDef, Object activityType)
             throws RepositoryException {
         final ActivityRecorder recorder = socialService.getActivityRecorderMap().get(activityType.toString());
-        final JahiaResourceBundle bundle = new JahiaResourceBundle(null,context.getUILocale(), recorder.getTemplatePackageName());
-        return bundle.get(getResourceBundleKey(recorder, activityType.toString()), activityType.toString());
+        JahiaTemplatesPackage pack = ServicesRegistry.getInstance().getJahiaTemplateManagerService().getTemplatePackage(recorder.getTemplatePackageName());
+        return Messages.get(pack, activityType.toString(), context.getUILocale());
     }
 
     public Map<String, Object> getObjectRendering(Locale locale, ExtendedPropertyDefinition propDef,
                                                   Object activityType) throws RepositoryException {
         final ActivityRecorder recorder = socialService.getActivityRecorderMap().get(activityType.toString());
-        final JahiaResourceBundle bundle = new JahiaResourceBundle(null,locale, recorder.getTemplatePackageName());
+        JahiaTemplatesPackage pack = ServicesRegistry.getInstance().getJahiaTemplateManagerService().getTemplatePackage(recorder.getTemplatePackageName());
         Map<String,Object> results = new LinkedHashMap<String, Object>();
-        results.put("displayName",bundle.get(getResourceBundleKey(recorder, activityType.toString()), activityType.toString()));
+        results.put("displayName",Messages.get(pack, activityType.toString(), locale));
         results.put("value",activityType.toString());
         return results;
     }
 
-    private String getResourceBundleKey(ActivityRecorder recorder, String activityType) {
+    private String getResourceBundleKey(String activityType) {
         return "label.activityTypes." + activityType;
     }
 
