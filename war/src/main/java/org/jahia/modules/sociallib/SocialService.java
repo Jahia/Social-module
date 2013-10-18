@@ -44,6 +44,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.util.ISO8601;
 import org.jahia.api.Constants;
 import org.jahia.services.content.*;
+import org.jahia.services.content.nodetypes.ExtendedPropertyType;
 import org.jahia.services.usermanager.JahiaUser;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.usermanager.jcr.JCRUser;
@@ -487,9 +488,7 @@ public class SocialService implements BeanPostProcessor {
         args.put("to", toUserKey);
         args.put("connectionType", connectionType);
 
-        List<WorkflowVariable> values = new ArrayList<WorkflowVariable>(1);
-        values.add(new WorkflowVariable(from.getUsername(), 1));
-        args.put("jcr:title", values);
+        args.put("jcr:title", new WorkflowVariable(from.getUsername(), ExtendedPropertyType.STRING));
 
         JCRTemplate.getInstance().doExecuteWithSystemSession(from.getUsername(), Constants.LIVE_WORKSPACE, Locale.ENGLISH,
                 new JCRCallback<Boolean>() {
