@@ -44,9 +44,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.SortedSet;
+
 import javax.jcr.RepositoryException;
 
-import org.jahia.modules.social.SocialService;
+import org.jahia.modules.sociallib.SocialService;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.SpringContextSingleton;
 import org.jahia.services.content.JCRCallback;
@@ -58,6 +66,7 @@ import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.usermanager.jcr.JCRUser;
 import org.jahia.services.workflow.WorkflowService;
 import org.jahia.services.workflow.WorkflowTask;
+import org.jahia.test.JahiaTestCase;
 import org.junit.*;
 
 /**
@@ -65,7 +74,7 @@ import org.junit.*;
  *
  * @author Sergiy Shyrkov
  */
-public class SocialServiceTest {
+public class SocialServiceTest extends JahiaTestCase {
 
     private static final int ACTIVITY_COUNT = 100;
 
@@ -87,7 +96,7 @@ public class SocialServiceTest {
 
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
-        service = (SocialService) SpringContextSingleton.getModuleBean("socialService");
+        service = (SocialService) SpringContextSingleton.getBean("socialService");
         assertNotNull("SocialService cannot be retrieved", service);
 
         userManager = ServicesRegistry.getInstance().getJahiaUserManagerService();
@@ -160,7 +169,7 @@ public class SocialServiceTest {
 
         WorkflowTask task = tasks.get(0);
         // reject the connection
-        workflowService.completeTask(task.getId(), user, task.getProvider(), doAccept ? "accept" : "reject",
+        workflowService.completeTask(task.getId(), to, task.getProvider(), doAccept ? "accept" : "reject",
                 new HashMap<String, Object>());
 
         tasks = workflowService.getTasksForUser(to, Locale.ENGLISH);

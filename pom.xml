@@ -92,7 +92,7 @@
 
     <modules>
         <module>war</module>
-<!--        <module>test</module>-->
+        <module>test</module>
     </modules>
 
 </project>

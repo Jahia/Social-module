@@ -49,7 +49,7 @@
     <artifactId>jahia-social-test-module</artifactId>
     <groupId>org.jahia.test</groupId>
     <name>Jahia Social Test Module Package</name>
-    <packaging>war</packaging>
+    <packaging>bundle</packaging>
 
     <repositories>
         <repository>
@@ -79,38 +79,6 @@
             </releases>
         </repository>
     </repositories>
-    <profiles>
-        <profile>
-            <id>eclipse-integration</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-eclipse-plugin</artifactId>
-                        <version>${eclipse.plugin.version}</version>
-                        <configuration>
-                            <wtpversion>1.5</wtpversion>
-                            <additionalProjectnatures>
-                                <projectnature>org.eclipse.wst.common.project.facet.core.nature</projectnature>
-                                <projectnature>org.eclipse.wst.common.modulecore.ModuleCoreNature</projectnature>
-                                <projectnature>org.eclipse.jem.workbench.JavaEMFNature</projectnature>
-                            </additionalProjectnatures>
-                            <additionalBuildcommands>
-                                <buildCommand>
-                                    <name>org.eclipse.wst.common.project.facet.core.builder</name>
-                                    <arguments />
-                                </buildCommand>
-                                <buildCommand>
-                                    <name>org.eclipse.wst.validation.validationbuilder</name>
-                                    <arguments />
-                                </buildCommand>
-                            </additionalBuildcommands>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <dependencies>
         <dependency>
@@ -123,52 +91,35 @@
             <groupId>org.jahia.test</groupId>
             <artifactId>jahia-test-module</artifactId>
             <version>7.0.0.0-SNAPSHOT</version>
-            <classifier>classes</classifier>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jahia.modules</groupId>
-            <artifactId>social-lib</artifactId>
+            <artifactId>social</artifactId>
             <version>2.0.0-SNAPSHOT</version>
             <scope>provided</scope>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <type>bundle</type>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${war.plugin.version}</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <warSourceExcludes>resources/*.properties</warSourceExcludes>
-                    <archive>
-                        <manifestEntries>
-		                	<Implementation-Title>${project.name}</Implementation-Title>
-		                    <Implementation-Version>${project.version}</Implementation-Version>
-		                    <Implementation-Vendor>${jahia.manifest.vendor.name}</Implementation-Vendor>
-		                    <Implementation-Vendor-Id>${jahia.manifest.vendor.id}</Implementation-Vendor-Id>
-		                    <Implementation-URL>${jahia.manifest.vendor.url}</Implementation-URL>
-		                    <Specification-Title>${project.name}</Specification-Title>
-		                    <Specification-Version>${project.version}</Specification-Version>
-		                    <Specification-Vendor>${jahia.manifest.vendor.name}</Specification-Vendor>
-                            <package-name>${project.name}</package-name>
-                            <depends>Default Jahia Templates</depends>
-                            <root-folder>${project.artifactId}</root-folder>
-                            <module-type>system</module-type>
-                        </manifestEntries>
-                    </archive>
-	                <archiveClasses>true</archiveClasses>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Jahia-Depends>default</Jahia-Depends>
+            <Jahia-Module-Type>system</Jahia-Module-Type>
+            <Import-Package>
+              ${jahia.plugin.projectPackageImport},
+              *
+            </Import-Package>
+            <Embed-Dependency>*; scope=compile; type=!pom; inline=false</Embed-Dependency>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>    
 </project>
