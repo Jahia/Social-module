@@ -112,7 +112,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>social-service</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
 
