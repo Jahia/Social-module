@@ -103,16 +103,19 @@
             <groupId>org.jahia.server</groupId>
             <artifactId>jahia-impl</artifactId>
             <version>6.6.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jahia.test</groupId>
             <artifactId>jahia-test-module</artifactId>
             <version>6.6.1.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>social-service</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
             <type>jar</type>
         </dependency>
 
