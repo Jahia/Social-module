@@ -53,30 +53,16 @@
 
     <repositories>
         <repository>
-            <id>openqa.org</id>
-            <name>Openqa Release Repository</name>
-            <url>http://archiva.openqa.org/repository/releases</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <id>jahia-public</id>
+            <name>Jahia Public Repository</name>
+            <url>https://devtools.jahia.com/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
             </releases>
-        </repository>
-        <repository>
-            <id>snapshots.openqa.org</id>
-            <name>Openqa Snapshot Repository</name>
-            <url>http://archiva.openqa.org/repository/snapshots</url>
-            <layout>default</layout>
             <snapshots>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
             </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
         </repository>
     </repositories>
     <profiles>
@@ -129,7 +115,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>social-service</artifactId>
-            <version>1.6-SNAPSHOT</version>
+            <version>${parent.version}</version>
             <scope>provided</scope>
             <type>jar</type>
         </dependency>
