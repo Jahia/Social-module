@@ -108,7 +108,6 @@
             <groupId>org.jahia.test</groupId>
             <artifactId>jahia-test-module</artifactId>
             <version>6.6.1.0</version>
-            <classifier>classes</classifier>
         </dependency>
         <dependency>
             <groupId>org.jahia.modules</groupId>
