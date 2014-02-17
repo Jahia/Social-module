@@ -223,7 +223,7 @@ public class SocialServiceTest extends JahiaTestCase {
 
                 final String path = romeo.getNode(session).getPath();
                 final SortedSet<JCRNodeWrapper> activities = (SortedSet<JCRNodeWrapper>) service.getActivities(session,
-                        null, 0, 0, path);
+                        null, -1, 0, path);
                 int count = activities.size();
                 assertEquals("User should have only one activity", 1, count);
                 final JCRNodeWrapper activity = activities.first();
@@ -250,7 +250,7 @@ public class SocialServiceTest extends JahiaTestCase {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 final SortedSet<JCRNodeWrapper> activities = (SortedSet<JCRNodeWrapper>) service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null);
+                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), -1, 0, null);
                 int count = activities.size();
                 assertEquals("User should have only one activity", 1, count);
                 final JCRNodeWrapper activity = activities.first();
@@ -280,119 +280,14 @@ public class SocialServiceTest extends JahiaTestCase {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 int count = service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), 0, 0, null).size();
+                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), -1, 0, null).size();
                 assertEquals("User should have " + ACTIVITY_COUNT + " one activity", ACTIVITY_COUNT, count);
                 return Boolean.TRUE;
             }
         });
     }
 
-    @Test
-    public void testSendMessage() throws Exception {
-        service.sendMessage(juliet.getUserKey(), romeo.getUserKey(), "Act 1 , scene 5",
-                "My only love sprung from my only hate!");
 
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                String inbox = romeo.getNode(session).getPath() + "/messages/inbox";
-                assertTrue("No inbox folder found for user '" + romeo.getName() + "' under path '" + inbox + "'",
-                        session.itemExists(inbox));
 
-                assertEquals("There should be only one message in the inbox of user '" + romeo.getName() + "'", 1,
-                        JCRContentUtils.size(session.getNode(inbox).getNodes()));
-                return Boolean.TRUE;
-            }
-        });
-    }
-
-    @Test
-    public void testSendMessageMultiple() throws Exception {
-
-        service.sendMessage(juliet.getUserKey(), romeo.getUserKey(), "Act 1, scene 5",
-                "My only love sprung from my only hate!");
-        service.sendMessage(tristan.getUserKey(), romeo.getUserKey(), "Germany vs. Spain",
-                "Are you going to watch it in a sport-bar or at home?");
-        service.sendMessage(iseult.getUserKey(), romeo.getUserKey(), "Happy Birthday", "Happy Birthday to you!");
-
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                String inbox = romeo.getNode(session).getPath() + "/messages/inbox";
-                assertTrue("No inbox folder found for user '" + romeo.getName() + "' under path '" + inbox + "'",
-                        session.itemExists(inbox));
-
-                assertEquals("There should be three messages in the inbox of user '" + romeo.getName() + "'", 3,
-                        JCRContentUtils.size(session.getNode(inbox).getNodes()));
-                return Boolean.TRUE;
-            }
-        });
-    }
-
-    @Test
-    public void testSendMessagePerformance() throws Exception {
-
-        for (int i = 0; i < MESSAGE_COUNT; i++) {
-            service.sendMessage(juliet.getUserKey(), romeo.getUserKey(), "Act 1, scene 5",
-                    "My only love sprung from my only hate!");
-        }
-
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                String inbox = romeo.getNode(session).getPath() + "/messages/inbox";
-                assertTrue("No inbox folder found for user '" + romeo.getName() + "' under path '" + inbox + "'",
-                        session.itemExists(inbox));
-
-                assertEquals("There should be " + MESSAGE_COUNT + " messages in the inbox of user '" + romeo.getName()
-                        + "'", MESSAGE_COUNT, JCRContentUtils.size(session.getNode(inbox).getNodes()));
-                return Boolean.TRUE;
-            }
-        });
-    }
-
-    @Test
-    public void testUserConnectAccept() throws Exception {
-        connect(romeo, juliet, "eternal-love", true);
-
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                Assert.assertEquals("There should be one connections for user '" + juliet.getName() + "'", 1, service
-                        .getUserConnections(juliet.getNode(session).getPath(), false).size());
-                Assert.assertEquals("There should be one connections for user '" + romeo.getName() + "'", 1, service
-                        .getUserConnections(romeo.getNode(session).getPath(), false).size());
-                return Boolean.TRUE;
-            }
-        });
-    }
-
-    @Test
-    public void testUserConnectMultiple() throws Exception {
-        connect(romeo, juliet, "eternal-love", true);
-        connect(tristan, juliet, "na", true);
-        connect(iseult, juliet, "colleague", true);
-
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                Assert.assertEquals("There should be three connections for user '" + juliet.getName() + "'", 3, service
-                        .getUserConnections(juliet.getNode(session).getPath(), false).size());
-                Assert.assertEquals("There should be one connections for user '" + iseult.getName() + "'", 1, service
-                        .getUserConnections(iseult.getNode(session).getPath(), false).size());
-                return Boolean.TRUE;
-            }
-        });
-    }
-
-    @Test
-    public void testUserConnectReject() throws Exception {
-        connect(romeo, juliet, "eternal-love", false);
-
-        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
-            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                Assert.assertEquals("There should be no connections for user '" + romeo.getName() + "'", 0, service
-                        .getUserConnections(romeo.getNode(session).getPath(), false).size());
-                Assert.assertEquals("There should be no connections for user '" + juliet.getName() + "'", 0, service
-                        .getUserConnections(juliet.getNode(session).getPath(), false).size());
-                return Boolean.TRUE;
-            }
-        });
-    }
 
 }
