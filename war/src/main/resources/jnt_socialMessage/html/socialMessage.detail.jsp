@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <h5 class="messageSenderName">
-                    <a href="${url.base}${fromUser.path}.html"><c:out value="${user:userFullName(fromUser)}"/></a>
+                    <a href="<c:url value='${url.base}${fromUser.path}.html'/>"><c:out value="${user:userFullName(fromUser)}"/></a>
                 </h5><jcr:nodeProperty node="${currentNode}" name="jcr:lastModified" var="lastModified"/><span class="timestamp"><fmt:formatDate
 value="${lastModified.time}" pattern="yyyy/MM/dd HH:mm"/></span>
                 <h5>${fn:escapeXml(currentNode.propertiesAsString['j:subject'])}</h5>
