@@ -50,11 +50,14 @@ import org.jahia.services.workflow.jbpm.custom.AbstractWorkItemHandler;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 
 public class CreateActivityWorkItemHandler extends AbstractWorkItemHandler implements WorkItemHandler {
     private static final long serialVersionUID = 1L;
+    private static Logger logger = LoggerFactory.getLogger(CreateActivityWorkItemHandler.class);
 
     @Override
     public void executeWorkItem(final WorkItem workItem, WorkItemManager manager) {
@@ -79,7 +82,7 @@ public class CreateActivityWorkItemHandler extends AbstractWorkItemHandler imple
                 }
             });
         } catch (RepositoryException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            logger.error("Error creating activity", e);
         }
 
         manager.completeWorkItem(workItem.getId(), null);
