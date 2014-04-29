@@ -45,6 +45,7 @@ import org.apache.jackrabbit.util.ISO8601;
 import org.jahia.api.Constants;
 import org.jahia.services.content.*;
 import org.jahia.services.content.nodetypes.ExtendedPropertyType;
+import org.jahia.services.templates.JahiaModulesBeanPostProcessor;
 import org.jahia.services.usermanager.JahiaUser;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.usermanager.jcr.JCRUser;
@@ -72,7 +73,7 @@ import java.util.*;
  *
  * @author Serge Huber
  */
-public class SocialService implements BeanPostProcessor {
+public class SocialService implements JahiaModulesBeanPostProcessor {
 
     private static Logger logger = LoggerFactory.getLogger(SocialService.class);
     public static final String JNT_BASE_SOCIAL_ACTIVITY = "jnt:baseSocialActivity";
@@ -616,4 +617,8 @@ public class SocialService implements BeanPostProcessor {
     }
 
 
+    @Override
+    public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
+
+    }
 }
