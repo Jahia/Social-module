@@ -5,4 +5,4 @@
 /.idea
 *.iml
 /service/target
-/war/target
+/social/target

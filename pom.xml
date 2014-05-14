@@ -91,7 +91,7 @@
     </pluginRepositories>
 
     <modules>
-        <module>war</module>
+        <module>social</module>
         <module>test</module>
     </modules>
 
