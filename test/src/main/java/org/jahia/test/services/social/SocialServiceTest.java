@@ -85,6 +85,7 @@ import java.util.SortedSet;
 
 import javax.jcr.RepositoryException;
 
+import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.sociallib.SocialService;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.SpringContextSingleton;
@@ -127,7 +128,9 @@ public class SocialServiceTest extends JahiaTestCase {
 
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
-        service = (SocialService) SpringContextSingleton.getBean("socialService");
+        final JahiaTemplatesPackage packageById = ServicesRegistry.getInstance().getJahiaTemplateManagerService().getTemplatePackageById("jahia-social-test-module");
+        service = (SocialService) packageById.getContext().getBean("socialService");
+
         assertNotNull("SocialService cannot be retrieved", service);
 
         userManager = ServicesRegistry.getInstance().getJahiaUserManagerService();
