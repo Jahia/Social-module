@@ -84,7 +84,19 @@
     <name>Jahia Social Test Module Package</name>
     <packaging>bundle</packaging>
 
-    <repositories>
+    <repositories>        
+        <repository>
+            <id>jahia-public</id>
+            <name>Jahia Public Repository</name>
+            <url>https://devtools.jahia.com/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
         <repository>
             <id>openqa.org</id>
             <name>Openqa Release Repository</name>
