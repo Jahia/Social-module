@@ -75,9 +75,11 @@ import org.drools.core.spi.KnowledgeHelper;
 import org.jahia.modules.sociallib.SocialService;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.content.rules.AbstractNodeFact;
 import org.jahia.services.content.rules.AddedNodeFact;
 import org.jahia.services.usermanager.JahiaUser;
+import org.jahia.services.usermanager.JahiaUserManagerService;
 
 import javax.jcr.RepositoryException;
 
@@ -101,12 +103,15 @@ public class SocialRuleService {
         if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
             return;
         }
-        final JahiaUser jahiaUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(user);
+        final JCRUserNode userNode = JahiaUserManagerService.getInstance().lookupUser(user);
+        if (userNode == null) {
+            return;
+        }
         JCRNodeWrapper n;
         if (params != null) {
-            n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), activityType, nodeFact.getNode().getSession(), params);
+            n = socialService.addActivity(userNode, nodeFact.getNode(), activityType, nodeFact.getNode().getSession(), params);
         } else {
-            n = socialService.addActivity(jahiaUser.getUserKey(), nodeFact.getNode(), activityType, nodeFact.getNode().getSession());
+            n = socialService.addActivity(userNode, nodeFact.getNode(), activityType, nodeFact.getNode().getSession());
         }
         drools.insert(new AddedNodeFact(n));
     }
@@ -115,13 +120,19 @@ public class SocialRuleService {
         if (fromUser == null || "".equals(fromUser.trim()) || fromUser.equals(" system ")) {
             return;
         }
-        final JahiaUser jahiaFromUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(fromUser);
+        final JCRUserNode jahiaFromUser = JahiaUserManagerService.getInstance().lookupUser(fromUser);
+        if (jahiaFromUser == null) {
+            return;
+        }
         if (toUser == null || "".equals(toUser.trim()) || toUser.equals(" system ")) {
             return;
         }
-        final JahiaUser jahiaToUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(toUser);
+        final JCRUserNode jahiaToUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(toUser);
+        if (jahiaToUser == null) {
+            return;
+        }
 
-        socialService.sendMessage(jahiaFromUser.getUserKey(), jahiaToUser.getUserKey(), subject, message, nodeFact.getNode().getSession());
+        socialService.sendMessage(jahiaFromUser, jahiaToUser, subject, message, nodeFact.getNode().getSession());
     }
 
     /**

@@ -75,18 +75,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.jackrabbit.util.ISO8601;
 import org.jahia.api.Constants;
 import org.jahia.services.content.*;
+import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.content.nodetypes.ExtendedPropertyType;
 import org.jahia.services.templates.JahiaModulesBeanPostProcessor;
-import org.jahia.services.usermanager.JahiaUser;
 import org.jahia.services.usermanager.JahiaUserManagerService;
-import org.jahia.services.usermanager.jcr.JCRUser;
-import org.jahia.services.usermanager.jcr.JCRUserManagerProvider;
 import org.jahia.services.workflow.WorkflowService;
 import org.jahia.services.workflow.WorkflowVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -127,7 +124,6 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
     private static final String JMIX_AUTOPUBLISH = "jmix:autoPublish";
 
     private String autoSplitSettings;
-    private JCRUserManagerProvider jcrUserManager;
     private JahiaUserManagerService userManagerService;
     private WorkflowService workflowService;
     private JCRContentUtils jcrContentUtils;
@@ -142,13 +138,16 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
         if (userKey == null || "".equals(userKey.trim())) {
             throw new ConstraintViolationException();
         }
-        final JCRUser fromJCRUser = getJCRUserFromUserKey(userKey);
-        if (fromJCRUser == null) {
+        final JCRUserNode userNode = userManagerService.lookupUserByPath(userKey, session);
+        if (userNode == null) {
             logger.warn("No user found, not adding activity !");
             throw new ConstraintViolationException();
         }
-        JCRNodeWrapper userNode = fromJCRUser.getNode(session);
 
+        return addActivity(userNode, targetNode, activityType, session, args);
+    }
+
+    public JCRNodeWrapper addActivity(final JCRUserNode userNode, final JCRNodeWrapper targetNode, String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
         JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
 
         if (activityRecorderMap.containsKey(activityType)) {
@@ -160,7 +159,7 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
                 activityNode.setProperty("j:targetNode", targetNode.getPath());
             }
             activityNode.setProperty("j:activityType", activityType);
-            activityRecorder.recordActivity(activityNode, activityType, userKey, targetNode, session, args);
+            activityRecorder.recordActivity(activityNode, activityType, userNode.getPath(), targetNode, session, args);
 
             return activityNode;
         }
@@ -200,32 +199,22 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
     }
 
     public boolean sendMessage(String fromUserKey, String toUserKey, final String subject, final String body, JCRSessionWrapper session) throws RepositoryException {
-        JCRUser fromJCRUser = getJCRUserFromUserKey(fromUserKey);
-        if (fromJCRUser == null) {
+        JCRUserNode fromUser = userManagerService.lookupUserByPath(fromUserKey, session);
+        if (fromUser == null) {
             logger.warn("Couldn't find from user " + fromUserKey + " , aborting message sending...");
             return false;
         }
-        JCRUser jcrUser = getJCRUserFromUserKey(toUserKey);
-
-        if (jcrUser == null) {
+        JCRUserNode toUser = userManagerService.lookupUserByPath(toUserKey, session);
+        if (toUser == null) {
             logger.warn("Couldn't find to user " + toUserKey + " , aborting message sending...");
             return false;
         }
 
-        final String fromUserIdentifier = fromJCRUser.getIdentifier();
-        final String toUserIdentifier = jcrUser.getIdentifier();
-
-        sendMessageInternal(fromUserIdentifier, toUserIdentifier, subject, body, session);
+        sendMessage(fromUser, toUser, subject, body, session);
         return true;
     }
 
-    private void sendMessageInternal(final String fromUserIdentifier, final String toUserIdentifier, final String subject, final String body, JCRSessionWrapper session) throws RepositoryException {
-
-        JCRNodeWrapper fromUser = session.getNodeByUUID(fromUserIdentifier);
-        JCRNodeWrapper toUser = session.getNodeByUUID(toUserIdentifier);
-        // now let's connect this user's node to the target node.
-
-        // now let's do the connection in the other direction.
+    public void sendMessage(final JCRUserNode fromUser, final JCRUserNode toUser, final String subject, final String body, JCRSessionWrapper session) throws RepositoryException {
         JCRNodeWrapper destinationInboxNode = JCRContentUtils.getOrAddPath(session, toUser, "messages/inbox",
                 Constants.JAHIANT_CONTENTLIST);
         String destinationInboxNodeName = JCRContentUtils.findAvailableNodeName(destinationInboxNode,
@@ -431,27 +420,22 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
      * @param connectionType the connection type
      * @throws RepositoryException in case of an error
      */
-    public void createSocialConnection(String fromUserKey, String toUserKey, final String connectionType)
+    public void createSocialConnection(final String fromUserKey, final String toUserKey, final String connectionType)
             throws RepositoryException {
-
-        JCRUser from = getJCRUserFromUserKey(fromUserKey);
-        if (from == null) {
-            throw new IllegalArgumentException("Cannot find user with key " + fromUserKey);
-        }
-
-        JCRUser to = getJCRUserFromUserKey(toUserKey);
-        if (to == null) {
-            throw new IllegalArgumentException("Cannot find user with key " + toUserKey);
-        }
-
-        final String leftUserIdentifier = from.getIdentifier();
-        final String rightUserIdentifier = to.getIdentifier();
 
         execute(new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
-                JCRNodeWrapper leftUser = session.getNodeByUUID(leftUserIdentifier);
-                JCRNodeWrapper rightUser = session.getNodeByUUID(rightUserIdentifier);
+                JCRUserNode leftUser = userManagerService.lookupUserByPath(fromUserKey, session);
+                if (leftUser == null) {
+                    throw new IllegalArgumentException("Cannot find user with key " + fromUserKey);
+                }
+
+                JCRUserNode rightUser = userManagerService.lookupUserByPath(toUserKey, session);
+                if (rightUser == null) {
+                    throw new IllegalArgumentException("Cannot find user with key " + toUserKey);
+                }
+
                 // now let's connect this user's node to the target node.
 
                 JCRNodeWrapper leftConnectionsNode = null;
@@ -504,28 +488,28 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
     public void requestSocialConnection(String fromUserKey, String toUserKey, String connectionType)
             throws RepositoryException {
 
-        final JCRUser from = getJCRUserFromUserKey(fromUserKey);
+        final JCRUserNode from = userManagerService.lookupUserByPath(fromUserKey);
         if (from == null) {
             throw new IllegalArgumentException("Cannot find user with key " + fromUserKey);
         }
 
-        final JahiaUser to = userManagerService.lookupUserByKey(toUserKey);
+        final JCRUserNode to = userManagerService.lookupUserByPath(toUserKey);
         if (to == null) {
             throw new IllegalArgumentException("Cannot find user with key " + toUserKey);
         }
 
         final Map<String, Object> args = new HashMap<String, Object>();
-        args.put("fromUser", from.getUsername());
+        args.put("fromUser", from.getName());
         args.put("from", fromUserKey);
         args.put("to", toUserKey);
         args.put("connectionType", connectionType);
 
-        args.put("jcr:title", new WorkflowVariable(from.getUsername(), ExtendedPropertyType.STRING));
+        args.put("jcr:title", new WorkflowVariable(from.getName(), ExtendedPropertyType.STRING));
 
-        JCRTemplate.getInstance().doExecuteWithSystemSession(from.getUsername(), Constants.LIVE_WORKSPACE, Locale.ENGLISH,
+        JCRTemplate.getInstance().doExecuteWithSystemSession(from.getName(), Constants.LIVE_WORKSPACE, Locale.ENGLISH,
                 new JCRCallback<Boolean>() {
                     public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                        workflowService.startProcess(Arrays.asList(from.getNode(session).getIdentifier()), session,
+                        workflowService.startProcess(Arrays.asList(from.getIdentifier()), session,
                                 "user-connection", "jBPM", args, null);
                         return true;
                     }
@@ -534,24 +518,6 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
 
     public Map<String, ActivityRecorder> getActivityRecorderMap() {
         return activityRecorderMap;
-    }
-
-    private JCRUser getJCRUserFromUserKey(String userKey) {
-        JCRUser jcrUser = null;
-
-        JahiaUser jahiaUser = userManagerService.lookupUserByKey(userKey);
-        if (jahiaUser == null) {
-            logger.error("Couldn't lookup user with userKey [" + userKey + "]");
-            return null;
-        }
-
-        if (jahiaUser instanceof JCRUser) {
-            jcrUser = (JCRUser) jahiaUser;
-        } else {
-            jcrUser = jcrUserManager.lookupExternalUser(jahiaUser);
-        }
-
-        return jcrUser;
     }
 
     /**
@@ -566,13 +532,6 @@ public class SocialService implements JahiaModulesBeanPostProcessor {
      */
     public void setUserManagerService(JahiaUserManagerService userManagerService) {
         this.userManagerService = userManagerService;
-    }
-
-    /**
-     * @param jcrUserManager the jcrUserManager to set
-     */
-    public void setJcrUserManager(JCRUserManagerProvider jcrUserManager) {
-        this.jcrUserManager = jcrUserManager;
     }
 
     /**
