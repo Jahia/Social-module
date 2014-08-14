@@ -71,35 +71,26 @@
  */
 package org.jahia.test.services.social;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.SortedSet;
-
-import javax.jcr.RepositoryException;
-
 import org.jahia.data.templates.JahiaTemplatesPackage;
 import org.jahia.modules.sociallib.SocialService;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.SpringContextSingleton;
 import org.jahia.services.content.JCRCallback;
-import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRTemplate;
+import org.jahia.services.content.decorator.JCRUserNode;
+import org.jahia.services.usermanager.JahiaUser;
 import org.jahia.services.usermanager.JahiaUserManagerService;
-import org.jahia.services.usermanager.jcr.JCRUser;
 import org.jahia.services.workflow.WorkflowService;
 import org.jahia.services.workflow.WorkflowTask;
 import org.jahia.test.JahiaTestCase;
 import org.junit.*;
+
+import javax.jcr.RepositoryException;
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test for the {@link SocialService}.
@@ -110,17 +101,17 @@ public class SocialServiceTest extends JahiaTestCase {
 
     private static final int ACTIVITY_COUNT = 100;
 
-    private static JCRUser iseult;
+    private static JCRUserNode iseult;
 
-    private static JCRUser juliet;
+    private static JCRUserNode juliet;
 
     private static final int MESSAGE_COUNT = 100;
 
-    private static JCRUser romeo;
+    private static JCRUserNode romeo;
 
     private static SocialService service;
 
-    private static JCRUser tristan;
+    private static JCRUserNode tristan;
 
     private static JahiaUserManagerService userManager;
 
@@ -139,33 +130,35 @@ public class SocialServiceTest extends JahiaTestCase {
         workflowService = (WorkflowService) SpringContextSingleton.getBean("workflowService");
         assertNotNull("WorkflowService cannot be retrieved", workflowService);
 
-        romeo = (JCRUser) userManager.createUser("social-test-user-romeo", "password", new Properties());
-        juliet = (JCRUser) userManager.createUser("social-test-user-juliet", "password", new Properties());
-        tristan = (JCRUser) userManager.createUser("social-test-user-tristan", "password", new Properties());
-        iseult = (JCRUser) userManager.createUser("social-test-user-iseult", "password", new Properties());
+        JCRSessionWrapper session = JCRTemplate.getInstance().getSessionFactory().getCurrentUserSession();
+        romeo = userManager.createUser("social-test-user-romeo", "password", new Properties(), session);
+        juliet = userManager.createUser("social-test-user-juliet", "password", new Properties(), session);
+        tristan = userManager.createUser("social-test-user-tristan", "password", new Properties(), session);
+        iseult =  userManager.createUser("social-test-user-iseult", "password", new Properties(), session);
     }
 
     @AfterClass
     public static void oneTimeTearDown() throws Exception {
+        JCRSessionWrapper session = JCRTemplate.getInstance().getSessionFactory().getCurrentUserSession();
         if (romeo != null) {
-            userManager.deleteUser(romeo);
+            userManager.deleteUser(romeo.getPath(), session);
         }
         if (juliet != null) {
-            userManager.deleteUser(juliet);
+            userManager.deleteUser(juliet.getPath(), session);
         }
         if (tristan != null) {
-            userManager.deleteUser(tristan);
+            userManager.deleteUser(tristan.getPath(), session);
         }
         if (iseult != null) {
-            userManager.deleteUser(iseult);
+            userManager.deleteUser(iseult.getPath(), session);
         }
         service = null;
         userManager = null;
     }
 
-    private void cleanUpUser(JCRUser user, JCRSessionWrapper session) throws RepositoryException {
-        JCRNodeWrapper userNode = user.getNode(session);
+    private void cleanUpUser(JCRUserNode userNode, JCRSessionWrapper session) throws RepositoryException {
         session.checkout(userNode);
+        JahiaUser user = userNode.getJahiaUser();
         List<WorkflowTask> tasks = workflowService.getTasksForUser(user, Locale.ENGLISH);
         for (WorkflowTask task : tasks) {
             try {
@@ -192,21 +185,22 @@ public class SocialServiceTest extends JahiaTestCase {
         }
     }
 
-    private void connect(final JCRUser from, final JCRUser to, String connectionType, boolean doAccept)
+    private void connect(final JCRUserNode from, final JCRUserNode to, String connectionType, boolean doAccept)
             throws RepositoryException {
         // request a connection
         service.requestSocialConnection(from.getUserKey(), to.getUserKey(), connectionType);
 
-        List<WorkflowTask> tasks = workflowService.getTasksForUser(to, Locale.ENGLISH);
+        JahiaUser toJahiaUser = to.getJahiaUser();
+        List<WorkflowTask> tasks = workflowService.getTasksForUser(toJahiaUser, Locale.ENGLISH);
         assertEquals("No task for user '" + to.getName() + "' was created for accepting the social connection", 1,
                 tasks.size());
 
         WorkflowTask task = tasks.get(0);
         // reject the connection
-        workflowService.completeTask(task.getId(), to, task.getProvider(), doAccept ? "accept" : "reject",
+        workflowService.completeTask(task.getId(), toJahiaUser, task.getProvider(), doAccept ? "accept" : "reject",
                 new HashMap<String, Object>());
 
-        tasks = workflowService.getTasksForUser(to, Locale.ENGLISH);
+        tasks = workflowService.getTasksForUser(toJahiaUser, Locale.ENGLISH);
         assertEquals("There should be no pending tasks for user '" + to.getName() + "'", 0, tasks.size());
     }
 
@@ -246,7 +240,7 @@ public class SocialServiceTest extends JahiaTestCase {
     public void testAddTypedActivity() throws Exception {
         JCRTemplate.getInstance().doExecuteWithSystemSession(romeo.getName(), new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                service.addActivity(romeo.getUserKey(),romeo.getNode(session),"resourceBundle",session, "test.fake.rb.key");
+                service.addActivity(romeo.getUserKey(),romeo,"resourceBundle",session, "test.fake.rb.key");
                 session.save();
                 return Boolean.TRUE;
             }
@@ -255,7 +249,7 @@ public class SocialServiceTest extends JahiaTestCase {
         JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
-                final String path = romeo.getNode(session).getPath();
+                final String path = romeo.getPath();
                 final SortedSet<JCRNodeWrapper> activities = (SortedSet<JCRNodeWrapper>) service.getActivities(session,
                         null, -1, 0, path);
                 int count = activities.size();
@@ -284,7 +278,7 @@ public class SocialServiceTest extends JahiaTestCase {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 final SortedSet<JCRNodeWrapper> activities = (SortedSet<JCRNodeWrapper>) service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), -1, 0, null);
+                        new HashSet<String>(Arrays.asList(romeo.getPath())), -1, 0, null);
                 int count = activities.size();
                 assertEquals("User should have only one activity", 1, count);
                 final JCRNodeWrapper activity = activities.first();
@@ -314,7 +308,7 @@ public class SocialServiceTest extends JahiaTestCase {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
 
                 int count = service.getActivities(session,
-                        new HashSet<String>(Arrays.asList(romeo.getNode(session).getPath())), -1, 0, null).size();
+                        new HashSet<String>(Arrays.asList(romeo.getPath())), -1, 0, null).size();
                 assertEquals("User should have " + ACTIVITY_COUNT + " one activity", ACTIVITY_COUNT, count);
                 return Boolean.TRUE;
             }
