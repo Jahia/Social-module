@@ -103,7 +103,7 @@ public class SocialRuleService {
         if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
             return;
         }
-        final JCRUserNode userNode = JahiaUserManagerService.getInstance().lookupUser(user);
+        final JCRUserNode userNode = JahiaUserManagerService.getInstance().lookupUser(user, nodeFact.getNode().getSession());
         if (userNode == null) {
             return;
         }
