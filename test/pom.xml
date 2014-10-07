@@ -155,7 +155,7 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Jahia-Depends>default</Jahia-Depends>
+            <Jahia-Depends>default,jahia-test-module,social</Jahia-Depends>
             <Jahia-Module-Type>system</Jahia-Module-Type>
             <Import-Package>
               ${jahia.plugin.projectPackageImport},
