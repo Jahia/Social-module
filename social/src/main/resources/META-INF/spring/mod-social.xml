@@ -12,6 +12,11 @@
         <property name="userManagerService" ref="JahiaUserManagerService"/>
         <property name="workflowService" ref="workflowService"/>
         <property name="JCRContentUtils" ref="JCRContentUtils"/>
+        <property name="activityRecorderRegistry" ref="activityRecorderRegistry"/>
+    </bean>
+
+    <bean id="activityRecorderRegistry" class="org.jahia.modules.sociallib.ActivityRecorderRegistry">
+
     </bean>
 
     <osgi:service id="socialServiceOsgi" ref="socialService" interface="org.jahia.modules.sociallib.SocialService"/>
