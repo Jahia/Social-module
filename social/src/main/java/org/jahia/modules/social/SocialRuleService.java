@@ -95,15 +95,23 @@ public class SocialRuleService {
 
     /* Rules Consequence implementations */
 
-    public void addActivityWithParameter(final String activityType, final String user, final AbstractNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
-        addActivityWithParametersArray(activityType, user, nodeFact, new Object[]{param}, drools);
+    public void addActivityWithParameter(String activityType, String user, AbstractNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
+        addActivityWithParametersArray(activityType, user, null, nodeFact, new Object[]{param}, drools);
     }
 
-    public void addActivityWithParametersArray(final String activityType, final String user, final AbstractNodeFact nodeFact, Object[] params, KnowledgeHelper drools) throws RepositoryException {
+    public void addActivityWithParameter(String activityType, String user, String userRealm, AbstractNodeFact nodeFact, Object param, KnowledgeHelper drools) throws RepositoryException {
+        addActivityWithParametersArray(activityType, user, userRealm, nodeFact, new Object[]{param}, drools);
+    }
+
+    public void addActivityWithParametersArray(String activityType, String user, AbstractNodeFact nodeFact, Object[] params, KnowledgeHelper drools) throws RepositoryException {
+        addActivityWithParametersArray(activityType, user, null, nodeFact, params, drools);
+    }
+    
+    public void addActivityWithParametersArray(String activityType, String user, String userRealm, AbstractNodeFact nodeFact, Object[] params, KnowledgeHelper drools) throws RepositoryException {
         if (user == null || "".equals(user.trim()) || user.equals(" system ")) {
             return;
         }
-        final JCRUserNode userNode = JahiaUserManagerService.getInstance().lookupUser(user, nodeFact.getNode().getSession());
+        JCRUserNode userNode = JahiaUserManagerService.getInstance().lookupUser(user, userRealm, nodeFact.getNode().getSession());
         if (userNode == null) {
             return;
         }
@@ -116,18 +124,22 @@ public class SocialRuleService {
         drools.insert(new AddedNodeFact(n));
     }
 
-    public void sendMessage(final String fromUser, final String toUser, final String subject, final String message, AbstractNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
+    public void sendMessage(String fromUser, String toUser, String subject, String message, AbstractNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
+        sendMessage(fromUser, null, toUser, null, subject, message, nodeFact, drools);
+    }
+
+    public void sendMessage(String fromUser, String fromUserRealm, String toUser, String toUserRealm, String subject, String message, AbstractNodeFact nodeFact, KnowledgeHelper drools) throws RepositoryException {
         if (fromUser == null || "".equals(fromUser.trim()) || fromUser.equals(" system ")) {
             return;
         }
-        final JCRUserNode jahiaFromUser = JahiaUserManagerService.getInstance().lookupUser(fromUser);
+        JCRUserNode jahiaFromUser = JahiaUserManagerService.getInstance().lookupUser(fromUser, fromUserRealm);
         if (jahiaFromUser == null) {
             return;
         }
         if (toUser == null || "".equals(toUser.trim()) || toUser.equals(" system ")) {
             return;
         }
-        final JCRUserNode jahiaToUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(toUser);
+        JCRUserNode jahiaToUser = ServicesRegistry.getInstance().getJahiaUserManagerService().lookupUser(toUser, toUserRealm);
         if (jahiaToUser == null) {
             return;
         }
