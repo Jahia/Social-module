@@ -85,6 +85,11 @@
 
     <description>This is a module for running on a Jahia server.</description>
 
+    <properties>
+        <jahia-depends>search,profile</jahia-depends>
+        <export-package>{local-packages}</export-package>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -100,20 +105,4 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Jahia-Depends>search,profile</Jahia-Depends>
-                        <Import-Package>org.jahia.modules.sociallib.taglib,${jahia.plugin.projectPackageImport},*</Import-Package>
-                        <Export-Package>{local-packages}</Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
