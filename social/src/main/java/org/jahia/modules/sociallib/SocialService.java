@@ -81,6 +81,7 @@ import org.jahia.services.templates.JahiaModulesBeanPostProcessor;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.services.workflow.WorkflowService;
 import org.jahia.services.workflow.WorkflowVariable;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -345,8 +346,8 @@ public class SocialService {
             // do filtering by date
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(startDate);
-            statementBuilder.append(" AND [jcr:created] >= '").append(ISO8601.format(c))
-                    .append("'");
+            statementBuilder.append(" AND [jcr:created] >= CAST('").append(ISO8601.format(c))
+                    .append("' AS DATE)");
         }
         statementBuilder.append(" order by [jcr:created] desc");
         String statement = statementBuilder.toString();
