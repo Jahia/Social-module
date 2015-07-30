@@ -81,7 +81,7 @@
     </parent>
 
     <artifactId>social-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <name>Jahia Social Parent</name>
     <packaging>pom</packaging>
 
@@ -91,7 +91,8 @@
         <connection>scm:git:git@github.com:Jahia/Social-module.git</connection>
         <url>scm:git:git@github.com:Jahia/Social-module.git</url>
         <developerConnection>scm:git:git@github.com:Jahia/Social-module.git</developerConnection>
-    </scm>
+      <tag>3_0_0</tag>
+  </scm>
 
     <repositories>
         <repository>
