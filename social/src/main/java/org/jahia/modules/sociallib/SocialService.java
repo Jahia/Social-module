@@ -113,7 +113,7 @@ public class SocialService {
         public int compare(JCRNodeWrapper activityNode1, JCRNodeWrapper activityNode2) {
             try {
                 // we invert the order to sort with most recent dates on top.
-                return activityNode2.getProperty("jcr:created").getDate().compareTo(activityNode1.getProperty("jcr:created").getDate());
+                return activityNode2.getProperty("jcr:lastModified").getDate().compareTo(activityNode1.getProperty("jcr:lastModified").getDate());
             } catch (RepositoryException e) {
                 logger.error("Error while comparing creation date on two activities, returning them as equal", e);
                 return 0;
@@ -346,10 +346,10 @@ public class SocialService {
             // do filtering by date
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(startDate);
-            statementBuilder.append(" AND [jcr:created] >= CAST('").append(ISO8601.format(c))
+            statementBuilder.append(" AND [jcr:lastModified] >= CAST('").append(ISO8601.format(c))
                     .append("' AS DATE)");
         }
-        statementBuilder.append(" order by [jcr:created] desc");
+        statementBuilder.append(" order by [jcr:lastModified] desc");
         String statement = statementBuilder.toString();
         QueryManager queryManager = jcrSessionWrapper.getWorkspace().getQueryManager();
         Query activitiesQuery = queryManager.createQuery(statement, Query.JCR_SQL2);
