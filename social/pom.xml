@@ -77,7 +77,7 @@
     <parent>
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>3.0.1</version>
+        <version>3.0.2-SNAPSHOT</version>
     </parent>
     <artifactId>social</artifactId>
     <name>Jahia Social Module</name>
