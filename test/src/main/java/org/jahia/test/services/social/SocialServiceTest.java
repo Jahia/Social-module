@@ -100,12 +100,10 @@ import static org.junit.Assert.*;
 public class SocialServiceTest extends JahiaTestCase {
 
     private static final int ACTIVITY_COUNT = 100;
-
+    
     private static JCRUserNode iseult;
 
     private static JCRUserNode juliet;
-
-    private static final int MESSAGE_COUNT = 100;
 
     private static JCRUserNode romeo;
 
@@ -135,23 +133,30 @@ public class SocialServiceTest extends JahiaTestCase {
         juliet = userManager.createUser("social-test-user-juliet", "password", new Properties(), session);
         tristan = userManager.createUser("social-test-user-tristan", "password", new Properties(), session);
         iseult =  userManager.createUser("social-test-user-iseult", "password", new Properties(), session);
+        session.save();
     }
 
     @AfterClass
     public static void oneTimeTearDown() throws Exception {
-        JCRSessionWrapper session = JCRTemplate.getInstance().getSessionFactory().getCurrentUserSession();
-        if (romeo != null) {
-            userManager.deleteUser(romeo.getPath(), session);
-        }
-        if (juliet != null) {
-            userManager.deleteUser(juliet.getPath(), session);
-        }
-        if (tristan != null) {
-            userManager.deleteUser(tristan.getPath(), session);
-        }
-        if (iseult != null) {
-            userManager.deleteUser(iseult.getPath(), session);
-        }
+        JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
+            @Override
+            public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
+                if (romeo != null) {
+                    userManager.deleteUser(romeo.getPath(), session);
+                }
+                if (juliet != null) {
+                    userManager.deleteUser(juliet.getPath(), session);
+                }
+                if (tristan != null) {
+                    userManager.deleteUser(tristan.getPath(), session);
+                }
+                if (iseult != null) {
+                    userManager.deleteUser(iseult.getPath(), session);
+                }
+                session.save();
+                return true;
+            }
+        });
         service = null;
         userManager = null;
     }
@@ -175,35 +180,17 @@ public class SocialServiceTest extends JahiaTestCase {
         tasks = workflowService.getTasksForUser(user, Locale.ENGLISH);
         assertTrue("user should have no tasks remaining",tasks.isEmpty());
         if (userNode.hasNode("activities")) {
-            userNode.getNode("activities").remove();
+            session.getNode(userNode.getPath() + "/activities").remove();
         }
         if (userNode.hasNode("connections")) {
-            userNode.getNode("connections").remove();
+            session.getNode(userNode.getPath() + "/connections").remove();
         }
         if (userNode.hasNode("messages")) {
-            userNode.getNode("messages").remove();
+            session.getNode(userNode.getPath() + "/messages").remove();
         }
+        session.save();
     }
-
-    private void connect(final JCRUserNode from, final JCRUserNode to, String connectionType, boolean doAccept)
-            throws RepositoryException {
-        // request a connection
-        service.requestSocialConnection(from.getUserKey(), to.getUserKey(), connectionType);
-
-        JahiaUser toJahiaUser = to.getJahiaUser();
-        List<WorkflowTask> tasks = workflowService.getTasksForUser(toJahiaUser, Locale.ENGLISH);
-        assertEquals("No task for user '" + to.getName() + "' was created for accepting the social connection", 1,
-                tasks.size());
-
-        WorkflowTask task = tasks.get(0);
-        // reject the connection
-        workflowService.completeTask(task.getId(), toJahiaUser, task.getProvider(), doAccept ? "accept" : "reject",
-                new HashMap<String, Object>());
-
-        tasks = workflowService.getTasksForUser(toJahiaUser, Locale.ENGLISH);
-        assertEquals("There should be no pending tasks for user '" + to.getName() + "'", 0, tasks.size());
-    }
-
+    
     @Before
     public void setUp() throws RepositoryException {
         JCRTemplate.getInstance().doExecuteWithSystemSession(new JCRCallback<Boolean>() {
@@ -238,7 +225,7 @@ public class SocialServiceTest extends JahiaTestCase {
 
     @Test
     public void testAddTypedActivity() throws Exception {
-        JCRTemplate.getInstance().doExecuteWithSystemSession(romeo.getName(), new JCRCallback<Boolean>() {
+        JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(romeo.getJahiaUser(), null, null, new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
                 service.addActivity(romeo.getUserKey(),romeo,"resourceBundle",session, "test.fake.rb.key");
                 session.save();
@@ -265,7 +252,7 @@ public class SocialServiceTest extends JahiaTestCase {
 
     @Test
     public void testAddStatusMessage() throws Exception {
-        JCRTemplate.getInstance().doExecuteWithSystemSession(romeo.getName(), new JCRCallback<Boolean>() {
+        JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(romeo.getJahiaUser(), null, null, new JCRCallback<Boolean>() {
             public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
                 service.addActivity(romeo.getUserKey(), "To be, or not to be: that is the question."
                                                         + " Regards. Romeo.", session);
@@ -294,7 +281,7 @@ public class SocialServiceTest extends JahiaTestCase {
     public void testAddActivityPerformance() throws Exception {
         for (int i = 0; i < ACTIVITY_COUNT; i++) {
             final int counter = i;
-            JCRTemplate.getInstance().doExecuteWithSystemSession(romeo.getName(), new JCRCallback<Boolean>() {
+            JCRTemplate.getInstance().doExecuteWithSystemSessionAsUser(romeo.getJahiaUser(), null, null, new JCRCallback<Boolean>() {
                 public Boolean doInJCR(JCRSessionWrapper session) throws RepositoryException {
                     service.addActivity(romeo.getUserKey(), "[" + counter
                             + "] To be, or not to be: that is the question." + " Regards. Romeo.", session);
