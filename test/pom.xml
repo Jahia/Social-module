@@ -28,7 +28,7 @@
         GNU General Public License for more details.
 
         You should have received a copy of the GNU General Public License
-        along with this program. If not, see <http://www.gnu.org/licenses/>.
+        along with this program. If not, see <http://www.gnu.org/licenses />.
 
 
         2/ JSEL - Commercial and Supported Versions of the program
@@ -49,7 +49,7 @@
     <parent>
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>3.0.2-SNAPSHOT</version>
+        <version>3.0.2</version>
     </parent>
     <artifactId>jahia-social-test-module</artifactId>
     <groupId>org.jahia.test</groupId>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>org.jahia.modules</groupId>
             <artifactId>social</artifactId>
-            <version>3.0.2-SNAPSHOT</version>
+            <version>3.0.2</version>
             <scope>provided</scope>
             <type>bundle</type>
         </dependency>
