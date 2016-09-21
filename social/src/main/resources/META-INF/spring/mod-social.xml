@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                         http://www.eclipse.org/gemini/blueprint/schema/blueprint http://www.eclipse.org/gemini/blueprint/schema/blueprint/gemini-blueprint.xsd">
 
-    <bean id="socialService" class="org.jahia.modules.sociallib.SocialService">
+    <bean id="socialService" class="org.jahia.modules.sociallib.impl.SocialServiceImpl">
         <!-- enable auto-splitting of user activities by year and month -->
         <property name="autoSplitSettings" value="date,jcr:created,yyyy;date,jcr:created,MM;date,jcr:created,dd"></property>
         <property name="userManagerService" ref="JahiaUserManagerService"/>
@@ -14,8 +14,9 @@
         <property name="activityRecorderRegistry" ref="activityRecorderRegistry"/>
     </bean>
 
+    <osgi:list id="osgiListActivityRecoderServices" availability="optional" interface="org.jahia.modules.sociallib.OsgiActivityRecorderService"/>
     <bean id="activityRecorderRegistry" class="org.jahia.modules.sociallib.ActivityRecorderRegistry">
-
+        <property name="osgiListActivityRecorders" ref="osgiListActivityRecoderServices"/>
     </bean>
 
     <osgi:service id="socialServiceOsgi" ref="socialService" interface="org.jahia.modules.sociallib.SocialService"/>
@@ -38,15 +39,17 @@
         </property>
     </bean>
 
-    <bean class="org.jahia.modules.sociallib.DefaultSocialActivityRecorder">
-        <property name="templatePackageName" value="Jahia Social Module"/>
-        <property name="activityTypes">
-            <map>
-                <entry key="text" value="jnt:socialActivity"/>
-                <entry key="resourceBundle" value="jnt:socialActivity"/>
-            </map>
-        </property>
-    </bean>
+    <osgi:service interface="org.jahia.modules.sociallib.OsgiActivityRecorderService">
+        <bean class="org.jahia.modules.sociallib.DefaultSocialActivityRecorder">
+            <property name="templatePackageName" value="Jahia Social Module"/>
+            <property name="activityTypes">
+                <map>
+                    <entry key="text" value="jnt:socialActivity"/>
+                    <entry key="resourceBundle" value="jnt:socialActivity"/>
+                </map>
+            </property>
+        </bean>
+    </osgi:service>
 
     <bean class="org.jahia.modules.social.choicelist.ActivityTypeModuleChoiceListInitializer">
         <property name="key" value="activityTypes"/>

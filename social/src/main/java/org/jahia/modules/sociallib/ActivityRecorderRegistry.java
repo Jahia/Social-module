@@ -44,74 +44,62 @@
 package org.jahia.modules.sociallib;
 
 import org.jahia.services.templates.JahiaModulesBeanPostProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Registry for ActivityRecorder objects
  */
 public class ActivityRecorderRegistry implements JahiaModulesBeanPostProcessor {
-    private Map<String, ActivityRecorder> activityRecorderMap = new LinkedHashMap<String, ActivityRecorder>();
+    private static Logger logger = LoggerFactory.getLogger(ActivityRecorderRegistry.class);
 
+    private Map<String, ActivityRecorder> postProcessorActivityRecorders = new HashMap<>();
+    private List<OsgiActivityRecorderService> osgiListActivityRecorders = new ArrayList<>();
 
-    /**
-     * Apply this BeanPostProcessor to the given new bean instance <i>after</i> any bean
-     * initialization callbacks (like InitializingBean's <code>afterPropertiesSet</code>
-     * or a custom init-method). The bean will already be populated with property values.
-     * The returned bean instance may be a wrapper around the original.
-     * <p>In case of a FactoryBean, this callback will be invoked for both the FactoryBean
-     * instance and the objects created by the FactoryBean (as of Spring 2.0). The
-     * post-processor can decide whether to apply to either the FactoryBean or created
-     * objects or both through corresponding <code>bean instanceof FactoryBean</code> checks.
-     * <p>This callback will also be invoked after a short-circuiting triggered by a
-     * {@link org.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor#postProcessBeforeInstantiation} method,
-     * in contrast to all other BeanPostProcessor callbacks.
-     *
-     * @param bean     the new bean instance
-     * @param beanName the name of the bean
-     * @return the bean instance to use, either the original or a wrapped one; if
-     *         <code>null</code>, no subsequent BeanPostProcessors will be invoked
-     * @throws org.springframework.beans.BeansException
-     *          in case of errors
-     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
-     * @see org.springframework.beans.factory.FactoryBean
-     */
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (bean instanceof ActivityRecorder) {
-            ActivityRecorder activityRecorder = (ActivityRecorder) bean;
-            for (String activityType : activityRecorder.getActivityTypes().keySet()) {
-                activityRecorderMap.put(activityType, activityRecorder);
-            }
+        if (bean instanceof ActivityRecorder && !(bean instanceof OsgiActivityRecorderService)) {
+            logger.warn("An ActivityRecorder have been detected and registered using JahiaModulesBeanPostProcessor. " +
+                    "Since DX 7.2.0.0, it's not recommended to use this mechanism of inter module beans lookup. Module spring contexts are now " +
+                    "started independently and beans could be registered before the JahiaModulesBeanPostProcessor causing unintended side-effects. " +
+                    "To avoid this potential side-effects, we recommend you to replace your ActivityRecorder by an OsgiActivityRecorderService and " +
+                    "expose it as a service in OSGI. You can find more informations about this mechanisms in the documentation");
+            postProcessorActivityRecorders.put(beanName, (ActivityRecorder) bean);
         }
         return bean;
     }
 
-    /**
-     * Apply this BeanPostProcessor to the given new bean instance <i>before</i> any bean
-     * initialization callbacks (like InitializingBean's <code>afterPropertiesSet</code>
-     * or a custom init-method). The bean will already be populated with property values.
-     * The returned bean instance may be a wrapper around the original.
-     *
-     * @param bean     the new bean instance
-     * @param beanName the name of the bean
-     * @return the bean instance to use, either the original or a wrapped one; if
-     *         <code>null</code>, no subsequent BeanPostProcessors will be invoked
-     * @throws org.springframework.beans.BeansException
-     *          in case of errors
-     * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet
-     */
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
     }
 
     @Override
     public void postProcessBeforeDestruction(Object bean, String beanName) throws BeansException {
-
+        if (bean instanceof ActivityRecorder && !(bean instanceof OsgiActivityRecorderService)) {
+            postProcessorActivityRecorders.remove(beanName);
+        }
     }
 
     public Map<String, ActivityRecorder> getActivityRecorderMap() {
+        Map<String, ActivityRecorder> activityRecorderMap = new LinkedHashMap<>();
+        populateRecorderMap(postProcessorActivityRecorders.values(), activityRecorderMap);
+        populateRecorderMap(osgiListActivityRecorders, activityRecorderMap);
         return activityRecorderMap;
+    }
+
+    private void populateRecorderMap(Collection<? extends ActivityRecorder> activityRecorders, Map<String, ActivityRecorder> activityRecorderMap) {
+        if (activityRecorders != null && activityRecorders.size() > 0) {
+            for (ActivityRecorder activityRecorder : activityRecorders) {
+                for (String activityType : activityRecorder.getActivityTypes().keySet()) {
+                    activityRecorderMap.put(activityType, activityRecorder);
+                }
+            }
+        }
+    }
+
+    public void setOsgiListActivityRecorders(List<OsgiActivityRecorderService> osgiListActivityRecorders) {
+        this.osgiListActivityRecorders = osgiListActivityRecorders;
     }
 }

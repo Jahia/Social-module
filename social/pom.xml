@@ -59,7 +59,7 @@
 
     <properties>
         <jahia-depends>search,profile</jahia-depends>
-        <export-package>{local-packages}</export-package>
+        <export-package>!org.jahia.modules.gateway.impl,{local-packages}</export-package>
     </properties>
 
     <dependencies>
