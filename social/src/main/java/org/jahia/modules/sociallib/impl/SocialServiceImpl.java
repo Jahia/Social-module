@@ -128,8 +128,8 @@ public class SocialServiceImpl implements SocialService {
     public JCRNodeWrapper addActivity(final JCRUserNode userNode, final JCRNodeWrapper targetNode, String activityType, JCRSessionWrapper session, Object... args) throws RepositoryException {
         JCRNodeWrapper activitiesNode = getActivitiesNode(session, userNode);
 
-        if (activityRecorderRegistry.getActivityRecorderMap().containsKey(activityType)) {
-            ActivityRecorder activityRecorder = activityRecorderRegistry.getActivityRecorderMap().get(activityType);
+        ActivityRecorder activityRecorder = activityRecorderRegistry.getActivityRecorderMap().get(activityType);
+        if (activityRecorder != null) {
             String nodeType = activityRecorder.getNodeTypeForActivity(activityType);
             String nodeName = jcrContentUtils.generateNodeName(activitiesNode, nodeType)+"_"+((int) Math.rint(Math.random()*100000));
             JCRNodeWrapper activityNode = activitiesNode.addNode(nodeName, nodeType);
