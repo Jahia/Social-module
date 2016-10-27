@@ -62,10 +62,10 @@ public class ActivityRecorderRegistry implements JahiaModulesBeanPostProcessor {
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof ActivityRecorder && !(bean instanceof OsgiActivityRecorderService)) {
             logger.warn("An ActivityRecorder have been detected and registered using JahiaModulesBeanPostProcessor. " +
-                    "Since DX 7.2.0.0, it's not recommended to use this mechanism of inter module beans lookup. Module spring contexts are now " +
+                    "Since DX 7.2.0.0, it's not recommended to use this mechanism of inter module beans lookup. Module Spring contexts are now " +
                     "started independently and beans could be registered before the JahiaModulesBeanPostProcessor causing unintended side-effects. " +
-                    "To avoid this potential side-effects, we recommend you to replace your ActivityRecorder by an OsgiActivityRecorderService and " +
-                    "expose it as a service in OSGI. You can find more informations about this mechanisms in the documentation");
+                    "To avoid these potential side-effects, we recommend you to replace your ActivityRecorder by an OsgiActivityRecorderService and " +
+                    "expose it as a service in OSGi. You can find more information about these mechanisms in the documentation.");
             postProcessorActivityRecorders.put(beanName, (ActivityRecorder) bean);
         }
         return bean;
