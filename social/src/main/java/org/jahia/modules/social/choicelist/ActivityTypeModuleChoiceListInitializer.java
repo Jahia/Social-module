@@ -141,6 +141,6 @@ public class ActivityTypeModuleChoiceListInitializer implements ModuleChoiceList
 
     public String getStringRendering(Locale locale, ExtendedPropertyDefinition propDef, Object propertyValue)
             throws RepositoryException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 }
