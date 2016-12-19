@@ -49,7 +49,7 @@
     <parent>
         <artifactId>social-parent</artifactId>
         <groupId>org.jahia.modules</groupId>
-        <version>3.0.3-SNAPSHOT</version>
+        <version>3.0.3</version>
     </parent>
     <artifactId>social</artifactId>
     <name>Jahia Social Module</name>
